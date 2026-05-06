@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Plus_Jakarta_Sans, Silkscreen } from 'next/font/google';
 import { Providers } from './providers';
+import { PostHogProvider } from './PostHogProvider';
 import './globals.css';
 
 const geist = Geist({ variable: '--font-geist', subsets: ['latin'] });
@@ -77,7 +78,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${geist.variable} ${jakarta.variable} ${silkscreen.variable} h-full`}>
       <body className="min-h-full antialiased" style={{ background: '#ffffff', color: '#000000' }}>
-        <Providers>{children}</Providers>
+        <PostHogProvider>
+          <Providers>{children}</Providers>
+        </PostHogProvider>
       </body>
     </html>
   );

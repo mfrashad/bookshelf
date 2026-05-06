@@ -174,7 +174,7 @@ export default function LandingPage() {
             Connect Goodreads or Hardcover, pick a style, and download a beautiful
             image of every book you read — in seconds.
           </p>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', marginBottom: 52 }}>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', marginBottom: 20 }}>
             <Link href="/library" style={F.btn} className="hover:-translate-y-0.5 hover:shadow-[4px_6px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-none">
               Get started — free
             </Link>
@@ -184,6 +184,20 @@ export default function LandingPage() {
             >
               Sign in
             </Link>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 52, flexWrap: 'wrap' }}>
+            <a
+              href="https://github.com/mfrashad/bookshelf"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
+            >
+              <span style={{ fontSize: 15 }}>★</span> Star on GitHub
+            </a>
+            <span style={{ color: 'rgba(0,0,0,0.25)', fontSize: 13 }}>·</span>
+            <span style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: 'rgba(0,0,0,0.45)' }}>
+              100% open source
+            </span>
           </div>
 
           {/* Hero slideshow — widescreen, natural aspect ratio */}
