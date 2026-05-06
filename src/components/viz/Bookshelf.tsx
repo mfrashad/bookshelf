@@ -155,6 +155,7 @@ function WanderingSparkle({ books, spineHeights, spineWidths }: WanderingSparkle
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || books.length === 0) return;
+    const c: HTMLCanvasElement = canvas; // non-null alias for use in closures
     const ctx = canvas.getContext('2d')!;
 
     let bookIdx = Math.floor(Math.random() * books.length);
@@ -166,15 +167,15 @@ function WanderingSparkle({ books, spineHeights, spineWidths }: WanderingSparkle
     let raf: number;
 
     function resize() {
-      const parent = canvas.parentElement;
+      const parent = c.parentElement;
       if (!parent) return;
       const dpr = window.devicePixelRatio || 1;
       const w = parent.offsetWidth;
       const h = parent.offsetHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      canvas.style.width = w + 'px';
-      canvas.style.height = h + 'px';
+      c.width = w * dpr;
+      c.height = h * dpr;
+      c.style.width = w + 'px';
+      c.style.height = h + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
@@ -198,7 +199,7 @@ function WanderingSparkle({ books, spineHeights, spineWidths }: WanderingSparkle
     window.addEventListener('resize', resize);
 
     raf = requestAnimationFrame(function tick() {
-      const parent = canvas.parentElement;
+      const parent = c.parentElement;
       if (!parent) { raf = requestAnimationFrame(tick); return; }
       ctx.clearRect(0, 0, parent.offsetWidth, parent.offsetHeight);
 
