@@ -1,26 +1,30 @@
 @import "tailwindcss";
 
+@theme {
+  /* WBD brand colors */
+  --color-wbd-yellow: #fff200;
+  --color-wbd-blue: #94e8ff;
+  --color-wbd-peach: #ffc0a1;
+  --color-wbd-mint: #6ff5b6;
+  --color-wbd-black: #000000;
+  --color-wbd-white: #ffffff;
+  --color-wbd-gray: #666666;
+  --color-wbd-light: #f5f5f5;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-sans: var(--font-geist);
+  /* Hard offset shadow — the WBD signature */
+  --shadow-hard: 5px 5px 0px #000000;
+  --shadow-hard-sm: 3px 3px 0px #000000;
+  --shadow-hard-lg: 6px 6px 0px #000000;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #ffffff;
+  color: #000000;
 }
