@@ -43,4 +43,4 @@ export const ASPECT_RATIO_DIMS: Record<AspectRatio, { width: number; height: num
   portrait: { width: 1080, height: 1350, label: 'Portrait (4:5)' },
 };
 
-export type VizMode = 'stack' | 'shelf' | 'grid' | 'wall' | 'mosaic' | 'pixel' | 'scatter';
+export type VizMode = 'stack' | 'shelf' | 'grid' | 'wall' | 'mosaic' | 'pixel' | 'scatter' | 'turntable';
