@@ -1,0 +1,282 @@
+'use client';
+
+import { useEffect, useMemo, useRef } from 'react';
+import type { Book, Shelf } from '@/lib/types';
+import { hashColor, spineTextColor } from '@/lib/spine';
+
+interface ScatterDriftProps {
+  shelves: Shelf[];
+  showBanned?: boolean;
+  onBookSelect?: (book: Book) => void;
+  exportMode?: boolean;
+}
+
+const CANVAS_W = 620;
+const CANVAS_H = 700;
+const CX = CANVAS_W / 2;
+const PAD = 30;
+const R = CANVAS_W * 0.36;          // cylinder radius (x swing)
+const AUTO_SPIN = 0.006;             // radians per frame at 60fps
+
+function srnd(i: number, salt: number) {
+  const v = Math.sin(i * 127.1 + salt * 311.7) * 43758.5453;
+  return (v - Math.floor(v)) * 2 - 1; // −1..1
+}
+
+// Per-book constants that never change regardless of rotation
+interface BookConst {
+  t: number;          // 0..1 position along helix axis
+  baseAngle: number;  // angle offset within helix (rotation adds to this)
+  y: number;          // fixed vertical position
+  jx: number;         // fixed horizontal jitter
+  rotJitter: number;  // seed for tilt direction/magnitude
+}
+
+function buildConstants(count: number): BookConst[] {
+  // ~2 turns for a tight visible helix curve; more turns → more horizontal gap
+  const turns = Math.max(1, Math.round(count / 22));
+  return Array.from({ length: count }, (_, i) => {
+    const t = count === 1 ? 0.5 : i / (count - 1);
+    return {
+      t,
+      baseAngle: t * turns * 2 * Math.PI,
+      y: PAD + t * (CANVAS_H - PAD * 2) + srnd(i, 1) * 10,
+      jx: srnd(i, 0) * 18,
+      rotJitter: srnd(i, 2),
+    };
+  });
+}
+
+// Compute one book's visual props from its angle (rotation + baseAngle)
+function bookProps(angle: number, rotJitter: number) {
+  const cosA = Math.cos(angle);
+  const sinA = Math.sin(angle);
+  const depthT = (sinA + 1) / 2;                 // 0 (back) → 1 (front)
+  return {
+    x:     CX + R * cosA,
+    depth: sinA,
+    w:     34 + depthT * 20,                      // 34–54px
+    h:     (34 + depthT * 20) * 1.32,
+    alpha: 0.38 + depthT * 0.62,                  // ghosted (back) → solid (front)
+    rot:   rotJitter * (4 + (1 - depthT) * 4),    // more tilt on the far back
+    z:     Math.round(50 + sinA * 40),
+  };
+}
+
+// Static snapshot for export (no animation)
+function StaticView({ allBooks }: { allBooks: Book[] }) {
+  const consts = useMemo(() => buildConstants(allBooks.length), [allBooks.length]);
+  const startRot = Math.PI;
+
+  return (
+    <div style={{ position: 'relative', width: CANVAS_W, height: CANVAS_H }}>
+      {allBooks.map((book, i) => {
+        const c = consts[i];
+        const { x, w, h, alpha, rot, z } = bookProps(startRot + c.baseAngle, c.rotJitter);
+        const fallbackBg = hashColor(book.title);
+        const fallbackFg = spineTextColor(fallbackBg);
+        return (
+          <div
+            key={book.id as string}
+            style={{
+              position: 'absolute',
+              left: x + c.jx,
+              top: c.y,
+              width: w,
+              height: h,
+              opacity: alpha,
+              zIndex: z,
+              overflow: 'hidden',
+              borderRadius: 2,
+              transform: `translate(-50%,-50%) rotate(${rot}deg)`,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.09)',
+            }}
+          >
+            <BookFace book={book} w={w} fallbackBg={fallbackBg} fallbackFg={fallbackFg} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function BookFace({ book, w, fallbackBg, fallbackFg }: { book: Book; w: number; fallbackBg: string; fallbackFg: string }) {
+  const initial = book.title.trim()[0]?.toUpperCase() ?? '?';
+  return (
+    <>
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: fallbackBg, color: fallbackFg,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '3px 2px', gap: 1,
+      }}>
+        <span style={{ fontSize: Math.max(9, w * 0.26), fontWeight: 700, lineHeight: 1 }}>{initial}</span>
+        <span style={{
+          fontSize: Math.max(5, w * 0.09), fontWeight: 500, opacity: 0.8,
+          textAlign: 'center', lineHeight: 1.2, overflow: 'hidden',
+          display: '-webkit-box', WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical' as const, wordBreak: 'break-word' as const,
+        }}>{book.title}</span>
+      </div>
+      {book.coverProxiedUrl && (
+        <img
+          src={book.coverProxiedUrl}
+          alt={book.title}
+          crossOrigin="anonymous"
+          loading="lazy"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        />
+      )}
+    </>
+  );
+}
+
+export function ScatterDrift({ shelves, showBanned = false, onBookSelect, exportMode = false }: ScatterDriftProps) {
+  const allBooks = useMemo(() =>
+    [...shelves]
+      .filter((s) => s.books.length > 0)
+      .sort((a, b) => b.title.localeCompare(a.title))
+      .flatMap((s) => s.books),
+    [shelves]
+  );
+
+  const consts = useMemo(() => buildConstants(allBooks.length), [allBooks.length]);
+
+  // DOM refs — updated directly each frame, bypassing React renders
+  const bookRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Animation state (all mutable refs, no state)
+  const rotRef        = useRef(Math.PI);   // current rotation angle
+  const velRef        = useRef(0);          // current angular velocity (radians/frame)
+  const dragging      = useRef(false);
+  const lastX         = useRef(0);
+  const rafRef        = useRef<number>();
+
+  useEffect(() => {
+    if (exportMode) return;
+
+    function frame() {
+      if (!dragging.current) {
+        // Smoothly approach auto-spin speed from whatever velocity we have
+        velRef.current += (AUTO_SPIN - velRef.current) * 0.04;
+      }
+      rotRef.current += velRef.current;
+
+      const n = allBooks.length;
+      consts.forEach((c, i) => {
+        const el = bookRefs.current[i];
+        if (!el) return;
+        const angle = rotRef.current + c.baseAngle;
+        const { x, w, h, alpha, rot, z } = bookProps(angle, c.rotJitter);
+        const px = x + c.jx;
+
+        el.style.left    = `${px}px`;
+        el.style.top     = `${c.y}px`;
+        el.style.width   = `${w}px`;
+        el.style.height  = `${h}px`;
+        el.style.opacity = `${alpha}`;
+        el.style.zIndex  = `${z}`;
+        el.style.transform = `translate(-50%,-50%) rotate(${rot}deg)`;
+      });
+
+      rafRef.current = requestAnimationFrame(frame);
+    }
+
+    rafRef.current = requestAnimationFrame(frame);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [allBooks, consts, exportMode]);
+
+  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    dragging.current = true;
+    lastX.current = e.clientX;
+    velRef.current = 0;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+  function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!dragging.current) return;
+    const dx = e.clientX - lastX.current;
+    const delta = dx * 0.009;
+    rotRef.current += delta;
+    velRef.current = delta;       // remember last delta for release-inertia
+    lastX.current = e.clientX;
+  }
+  function onPointerUp() {
+    dragging.current = false;
+    // velRef carries the last drag delta → inertia naturally decays toward AUTO_SPIN
+  }
+
+  if (allBooks.length === 0) return null;
+
+  if (exportMode) {
+    return (
+      <div style={{ background: '#fff', display: 'flex', justifyContent: 'center' }}>
+        <StaticView allBooks={allBooks} />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{ background: '#fff', borderRadius: 8, overflow: 'hidden', userSelect: 'none', display: 'flex', justifyContent: 'center', cursor: 'grab' }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+    >
+      {/* Hint */}
+      <div style={{
+        position: 'absolute',
+        top: 148,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        fontSize: 11,
+        color: '#bbb',
+        letterSpacing: '0.05em',
+        pointerEvents: 'none',
+        userSelect: 'none',
+        whiteSpace: 'nowrap',
+      }}>
+        drag to rotate
+      </div>
+
+      <div style={{ position: 'relative', width: CANVAS_W, height: CANVAS_H }}>
+        {allBooks.map((book, i) => {
+          const fallbackBg = hashColor(book.title);
+          const fallbackFg = spineTextColor(fallbackBg);
+          // Initial props (frame loop will overwrite instantly)
+          const c = consts[i];
+          const init = bookProps(rotRef.current + c.baseAngle, c.rotJitter);
+          return (
+            <div
+              key={book.id as string}
+              ref={(el) => { bookRefs.current[i] = el; }}
+              title={`${book.title}${book.authors?.[0]?.name ? ` — ${book.authors[0].name}` : ''}`}
+              onClick={() => onBookSelect?.(book)}
+              style={{
+                position: 'absolute',
+                left: init.x + c.jx,
+                top: c.y,
+                width: init.w,
+                height: init.h,
+                opacity: init.alpha,
+                zIndex: init.z,
+                overflow: 'hidden',
+                borderRadius: 2,
+                transform: `translate(-50%,-50%) rotate(${init.rot}deg)`,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.09), 0 1px 2px rgba(0,0,0,0.05)',
+                cursor: 'pointer',
+                transition: 'box-shadow 0.15s',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 22px rgba(0,0,0,0.18)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.09), 0 1px 2px rgba(0,0,0,0.05)'; }}
+            >
+              <BookFace book={book} w={init.w} fallbackBg={fallbackBg} fallbackFg={fallbackFg} />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

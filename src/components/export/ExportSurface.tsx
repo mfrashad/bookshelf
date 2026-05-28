@@ -9,6 +9,7 @@ import { CoverGrid } from '@/components/viz/CoverGrid';
 import { Bookshelf } from '@/components/viz/Bookshelf';
 import { MosaicGrid } from '@/components/viz/MosaicGrid';
 import { PixelGrid } from '@/components/viz/PixelGrid';
+import { ScatterDrift } from '@/components/viz/ScatterDrift';
 
 interface ExportSurfaceProps {
   shelves: Shelf[];
@@ -21,7 +22,7 @@ const MAX_PREVIEW_H = 420;
 const CAPTION_HEIGHT = 80;
 const BOOKDAY_HEIGHT = 60;
 
-const VIZ_MODES: VizMode[] = ['stack', 'shelf', 'grid', 'mosaic', 'pixel', 'wall'];
+const VIZ_MODES: VizMode[] = ['stack', 'shelf', 'grid', 'mosaic', 'pixel', 'wall', 'scatter'];
 const VIZ_LABELS: Record<VizMode, string> = {
   stack: 'Stack',
   shelf: 'Bookshelf',
@@ -29,6 +30,7 @@ const VIZ_LABELS: Record<VizMode, string> = {
   mosaic: 'Mosaic',
   pixel: 'Pixel',
   wall: 'Wall',
+  scatter: 'Spiral Drift',
 };
 
 export function ExportSurface({ shelves, ratio, vizMode: initialVizMode = 'stack' }: ExportSurfaceProps) {
@@ -115,6 +117,8 @@ export function ExportSurface({ shelves, ratio, vizMode: initialVizMode = 'stack
         return <PixelGrid shelves={shelves} exportMode />;
       case 'wall':
         return <CoverGrid shelves={shelves} exportMode />;
+      case 'scatter':
+        return <ScatterDrift shelves={shelves} exportMode />;
     }
   };
 
