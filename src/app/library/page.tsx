@@ -5,10 +5,8 @@ import Link from 'next/link';
 import { UserButton, SignInButton } from '@clerk/nextjs';
 import BookStackChart from '@/components/viz/BookStackChart';
 import { CoverGrid } from '@/components/viz/CoverGrid';
-import { Bookshelf } from '@/components/viz/Bookshelf';
 import { WallShelf } from '@/components/viz/WallShelf';
 import { MosaicGrid } from '@/components/viz/MosaicGrid';
-import { PixelGrid } from '@/components/viz/PixelGrid';
 import { ScatterDrift } from '@/components/viz/ScatterDrift';
 import { ExportSurface } from '@/components/export/ExportSurface';
 import { LiteracyBanner } from '@/components/social/LiteracyBanner';
@@ -21,12 +19,10 @@ import type { StoredBook } from '@/lib/local-storage';
 
 const VIZ_MODES: { id: VizMode; label: string; icon: string }[] = [
   { id: 'stack',   label: 'Stack Chart',  icon: '📊' },
-  { id: 'shelf',   label: 'Bookshelf',    icon: '📚' },
   { id: 'grid',    label: 'Cover Grid',   icon: '🖼️' },
   { id: 'wall',    label: 'Wall Shelf',   icon: '🪟' },
   { id: 'mosaic',  label: 'Mosaic',       icon: '◼️' },
-  { id: 'pixel',   label: 'Pixel Art',    icon: '🎮' },
-  { id: 'scatter',    label: 'Spiral Drift',  icon: '🌀' },
+  { id: 'scatter', label: 'Spiral Drift', icon: '🌀' },
 ];
 
 export default function LibraryPage() {
@@ -300,16 +296,6 @@ export default function LibraryPage() {
                 onHideBook={handleHideBook}
               />
             )}
-            {vizMode === 'shelf' && (
-              <Bookshelf
-                shelves={displayShelves}
-                onBookSelect={handleBookSelect}
-                draggingId={draggingBookId}
-                onDragStart={(id) => setDraggingBookId(id)}
-                onDragEnd={() => setDraggingBookId(null)}
-                onReorderBooks={handleReorderBooks}
-              />
-            )}
             {vizMode === 'grid' && (
               <CoverGrid
                 shelves={displayShelves}
@@ -335,16 +321,6 @@ export default function LibraryPage() {
               <MosaicGrid
                 shelves={displayShelves}
                 showBanned={showBanned}
-                onBookSelect={handleBookSelect}
-                draggingId={draggingBookId}
-                onDragStart={(id) => setDraggingBookId(id)}
-                onDragEnd={() => setDraggingBookId(null)}
-                onReorderBooks={handleReorderBooks}
-              />
-            )}
-            {vizMode === 'pixel' && (
-              <PixelGrid
-                shelves={displayShelves}
                 onBookSelect={handleBookSelect}
                 draggingId={draggingBookId}
                 onDragStart={(id) => setDraggingBookId(id)}
@@ -458,7 +434,7 @@ export default function LibraryPage() {
       {/* Footer nav */}
       <footer style={{ borderTop: '2px solid #000', padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff' }}>
         <span style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#666' }}>
-          Built for World Book Day · <a href="https://aiforgood.my" target="_blank" rel="noopener noreferrer" style={{ color: '#000', textDecoration: 'underline' }}>aiforgood.my</a>
+          Built for World Book Day · <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#000', textDecoration: 'underline' }}>buildforpublic.com</a>
         </span>
         <div style={{ display: 'flex', gap: 20 }}>
           <Link href="/give" style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#333', textDecoration: 'underline' }}>Give books</Link>

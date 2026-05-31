@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://bookshelf.aiforgood.my';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://bookshelf.buildforpublic.com';
 
 export default function robots(): MetadataRoute.Robots {
   return {

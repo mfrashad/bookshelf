@@ -220,8 +220,8 @@ export default function ImpactPage() {
             </h3>
             <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 15, color: '#000', lineHeight: 1.7, marginBottom: 12 }}>
               This project is part of{' '}
-              <a href="https://aiforgood.my" target="_blank" rel="noopener noreferrer" style={{ color: '#000', fontWeight: 700, textDecoration: 'underline' }}>
-                aiforgood.my
+              <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#000', fontWeight: 700, textDecoration: 'underline' }}>
+                buildforpublic.com
               </a>
               {' '}— a Malaysian initiative using AI to create tools that matter. We believe technology
               should serve people, not just profit. Bookshelf was built on World Book Day as a free,
@@ -236,8 +236,8 @@ export default function ImpactPage() {
                 Rashad
               </a>
               {' · '}
-              <a href="https://aiforgood.my" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(0,0,0,0.4)', textDecoration: 'underline', textUnderlineOffset: 2 }}>
-                Volunteer with aiforgood.my →
+              <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(0,0,0,0.4)', textDecoration: 'underline', textUnderlineOffset: 2 }}>
+                Volunteer with buildforpublic.com →
               </a>
             </p>
           </div>
@@ -251,7 +251,7 @@ export default function ImpactPage() {
           <span style={{ margin: '0 8px', color: '#ddd' }}>·</span>
           <a href="https://github.com/mfrashad/bookshelf/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" style={{ color: '#bbb', textDecoration: 'underline', textUnderlineOffset: 2, textDecorationStyle: 'dotted' }}>Contribute</a>
           <span style={{ margin: '0 8px', color: '#ddd' }}>·</span>
-          <a href="https://aiforgood.my" target="_blank" rel="noopener noreferrer" style={{ color: '#bbb', textDecoration: 'underline', textUnderlineOffset: 2, textDecorationStyle: 'dotted' }}>Volunteer with aiforgood</a>
+          <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#bbb', textDecoration: 'underline', textUnderlineOffset: 2, textDecorationStyle: 'dotted' }}>buildforpublic.com</a>
         </p>
       </div>
 

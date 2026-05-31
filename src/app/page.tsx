@@ -113,7 +113,7 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
   name: 'Bookshelf',
-  url: 'https://bookshelf.aiforgood.my',
+  url: 'https://bookshelf.buildforpublic.com',
   description:
     'Turn your Goodreads or Hardcover reading library into a beautiful shareable poster. Free digital bookshelf tracker and reading visualization tool.',
   applicationCategory: 'LifestyleApplication',
@@ -127,7 +127,7 @@ const jsonLd = {
   creator: {
     '@type': 'Organization',
     name: 'AI for Good Malaysia',
-    url: 'https://aiforgood.my',
+    url: 'https://buildforpublic.com',
   },
   keywords:
     'digital bookshelf, book tracker, reading tracker, reading wrapped, book poster, goodreads export, reading visualization, literacy, world book day',
@@ -391,8 +391,8 @@ export default function LandingPage() {
             </h3>
             <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 16, color: '#000', lineHeight: 1.7, marginBottom: 16 }}>
               This project is part of{' '}
-              <a href="https://aiforgood.my" target="_blank" rel="noopener noreferrer" style={{ color: '#000', fontWeight: 700, textDecoration: 'underline' }}>
-                aiforgood.my
+              <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#000', fontWeight: 700, textDecoration: 'underline' }}>
+                buildforpublic.com
               </a>
               {' '}— a Malaysian initiative using AI to create tools that matter. We believe technology
               should serve people, not just profit. Bookshelf was built on World Book Day as a free,
@@ -407,8 +407,8 @@ export default function LandingPage() {
                 Rashad
               </a>
               {' · '}
-              <a href="https://aiforgood.my" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(0,0,0,0.4)', textDecoration: 'underline', textUnderlineOffset: 2 }}>
-                Volunteer with aiforgood.my →
+              <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(0,0,0,0.4)', textDecoration: 'underline', textUnderlineOffset: 2 }}>
+                Volunteer with buildforpublic.com →
               </a>
             </p>
           </div>
@@ -471,7 +471,7 @@ export default function LandingPage() {
           <span style={{ margin: '0 8px', color: '#ddd' }}>·</span>
           <a href="https://github.com/mfrashad/bookshelf/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" style={{ color: '#bbb', textDecoration: 'underline', textUnderlineOffset: 2, textDecorationStyle: 'dotted' }}>Contribute</a>
           <span style={{ margin: '0 8px', color: '#ddd' }}>·</span>
-          <a href="https://aiforgood.my" target="_blank" rel="noopener noreferrer" style={{ color: '#bbb', textDecoration: 'underline', textUnderlineOffset: 2, textDecorationStyle: 'dotted' }}>Volunteer with aiforgood</a>
+          <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#bbb', textDecoration: 'underline', textUnderlineOffset: 2, textDecorationStyle: 'dotted' }}>buildforpublic.com</a>
         </p>
       </div>
 

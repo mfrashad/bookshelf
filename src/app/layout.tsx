@@ -8,7 +8,7 @@ const geist = Geist({ variable: '--font-geist', subsets: ['latin'] });
 const jakarta = Plus_Jakarta_Sans({ variable: '--font-display', subsets: ['latin'], weight: ['400', '600', '700', '800'] });
 const silkscreen = Silkscreen({ variable: '--font-pixel', subsets: ['latin'], weight: '400' });
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://bookshelf.aiforgood.my';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://bookshelf.buildforpublic.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: '%s | Bookshelf',
   },
   description:
-    'Turn your Goodreads or Hardcover library into a beautiful poster. Track your reading, visualize your bookshelf, and share your reading year — free. Built by Fathy Rashad for aiforgood.my.',
+    'Turn your Goodreads or Hardcover library into a beautiful poster. Track your reading, visualize your bookshelf, and share your reading year — free. Built by Fathy Rashad for buildforpublic.com.',
   keywords: [
     'digital bookshelf',
     'digital library',
@@ -32,8 +32,7 @@ export const metadata: Metadata = {
     'bookshelf poster',
     'reading stats',
     'books I read',
-    'aiforgood',
-    'aiforgood.my',
+    'buildforpublic.com',
     'fathy rashad',
     'world book day',
     'literacy',

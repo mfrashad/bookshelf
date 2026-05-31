@@ -6,9 +6,7 @@ import { ASPECT_RATIO_DIMS } from '@/lib/types';
 import { exportNodeToPng } from '@/lib/image-export';
 import BookStackChart from '@/components/viz/BookStackChart';
 import { CoverGrid } from '@/components/viz/CoverGrid';
-import { Bookshelf } from '@/components/viz/Bookshelf';
 import { MosaicGrid } from '@/components/viz/MosaicGrid';
-import { PixelGrid } from '@/components/viz/PixelGrid';
 import { ScatterDrift } from '@/components/viz/ScatterDrift';
 
 interface ExportSurfaceProps {
@@ -22,13 +20,11 @@ const MAX_PREVIEW_H = 420;
 const CAPTION_HEIGHT = 80;
 const BOOKDAY_HEIGHT = 60;
 
-const VIZ_MODES: VizMode[] = ['stack', 'shelf', 'grid', 'mosaic', 'pixel', 'wall', 'scatter'];
+const VIZ_MODES: VizMode[] = ['stack', 'grid', 'mosaic', 'wall', 'scatter'];
 const VIZ_LABELS: Record<VizMode, string> = {
   stack: 'Stack',
-  shelf: 'Bookshelf',
   grid: 'Cover Grid',
   mosaic: 'Mosaic',
-  pixel: 'Pixel',
   wall: 'Wall',
   scatter: 'Spiral Drift',
 };
@@ -107,14 +103,10 @@ export function ExportSurface({ shelves, ratio, vizMode: initialVizMode = 'stack
     switch (vizMode) {
       case 'stack':
         return <BookStackChart shelves={shelves} exportMode exportWidth={vizAreaW} exportHeight={vizAreaH} />;
-      case 'shelf':
-        return <Bookshelf shelves={shelves} exportMode exportWidth={vizAreaW} exportHeight={vizAreaH} />;
       case 'grid':
         return <CoverGrid shelves={shelves} exportMode />;
       case 'mosaic':
         return <MosaicGrid shelves={shelves} exportMode />;
-      case 'pixel':
-        return <PixelGrid shelves={shelves} exportMode />;
       case 'wall':
         return <CoverGrid shelves={shelves} exportMode />;
       case 'scatter':
@@ -266,7 +258,7 @@ export function ExportSurface({ shelves, ratio, vizMode: initialVizMode = 'stack
                     📚 World Book Day · April 23
                   </span>
                   <span style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 14, color: '#bebcbb' }}>
-                    aiforgood.my/bookshelf
+                    buildforpublic.com/bookshelf
                   </span>
                 </div>
               )}
