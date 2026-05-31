@@ -316,10 +316,29 @@ function Diamond({
   );
 }
 
+// ─── Override CSS for forced column count ─────────────────────────────────────
+
+function columnsOverrideCSS(perRow: number): string {
+  const gridCols = perRow * 2 + 1;
+  const span = gridCols - 1;
+  const offset = (gridCols - 3) / 2;
+  const nth = offset === 0 ? `${span}n` : `${span}n-${offset}`;
+  return `
+    @media (min-width: 0px) {
+      .bdg { grid-template-columns: repeat(${gridCols}, 1fr) !important; }
+      .bdi:nth-child(2n),.bdi:nth-child(4n-1),.bdi:nth-child(6n-2),
+      .bdi:nth-child(8n-3),.bdi:nth-child(10n-4),.bdi:nth-child(12n-5),
+      .bdi:nth-child(14n-6) { grid-column-start: auto !important; }
+      .bdi:nth-child(${nth}) { grid-column-start: 2 !important; }
+    }
+  `;
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface MosaicGridProps {
   shelves: Shelf[];
+  columns?: number;
   showBanned?: boolean;
   showOpenAccess?: boolean;
   onBookSelect?: (book: Book) => void;
@@ -332,6 +351,7 @@ interface MosaicGridProps {
 
 export function MosaicGrid({
   shelves,
+  columns,
   showBanned = false,
   showOpenAccess = true,
   onBookSelect,
@@ -368,6 +388,7 @@ export function MosaicGrid({
       }}
     >
       <style>{CSS}</style>
+      {columns !== undefined && <style>{columnsOverrideCSS(columns)}</style>}
       <ul className="bdg" style={exportMode ? { margin: '0 -40px' } : undefined}>
         {allBooks.map((book, i) => (
           <Diamond

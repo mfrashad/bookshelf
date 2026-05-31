@@ -36,6 +36,7 @@ export default function LibraryPage() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [showBanned, setShowBanned] = useState(false);
   const [showOpenAccess, setShowOpenAccess] = useState(true);
+  const [perRow, setPerRow] = useState(7);
   const [hiddenBookIds, setHiddenBookIds] = useState<string[]>([]);
   const [bookOrder, setBookOrder] = useState<string[]>([]);
   const [draggingBookId, setDraggingBookId] = useState<string | null>(null);
@@ -46,6 +47,8 @@ export default function LibraryPage() {
   useEffect(() => {
     setShowBanned(sessionStorage.getItem('book-poster:show-banned') === '1');
     setShowOpenAccess(sessionStorage.getItem('book-poster:show-open-access') !== '0');
+    const savedPerRow = sessionStorage.getItem('book-poster:per-row');
+    if (savedPerRow) setPerRow(Number(savedPerRow));
     try {
       const hidden = localStorage.getItem('book-poster:hidden-books');
       if (hidden) setHiddenBookIds(JSON.parse(hidden));
@@ -246,6 +249,25 @@ export default function LibraryPage() {
             />
             Show public domain badges 📖
           </label>
+          {(['grid', 'wall', 'mosaic'] as const).includes(vizMode as 'grid' | 'wall' | 'mosaic') && (
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, userSelect: 'none', fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#333' }}>
+              Per row
+              <input
+                type="range"
+                min={3}
+                max={15}
+                step={1}
+                value={perRow}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setPerRow(v);
+                  sessionStorage.setItem('book-poster:per-row', String(v));
+                }}
+                style={{ width: 90, accentColor: '#000', cursor: 'pointer' }}
+              />
+              <span style={{ minWidth: 16, textAlign: 'right', fontWeight: 700 }}>{perRow}</span>
+            </label>
+          )}
           {hiddenBookIds.length > 0 && (
             <span style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#888' }}>
               {hiddenBookIds.length} book{hiddenBookIds.length !== 1 ? 's' : ''} hidden
@@ -351,6 +373,7 @@ export default function LibraryPage() {
             {vizMode === 'grid' && (
               <CoverGrid
                 shelves={displayShelves}
+                columns={perRow}
                 showBanned={showBanned}
                 showOpenAccess={showOpenAccess}
                 draggingId={draggingBookId}
@@ -362,6 +385,7 @@ export default function LibraryPage() {
             {vizMode === 'wall' && (
               <WallShelf
                 shelves={displayShelves}
+                perRow={perRow}
                 showBanned={showBanned}
                 showOpenAccess={showOpenAccess}
                 onBookSelect={handleBookSelect}
@@ -374,6 +398,7 @@ export default function LibraryPage() {
             {vizMode === 'mosaic' && (
               <MosaicGrid
                 shelves={displayShelves}
+                columns={perRow}
                 showBanned={showBanned}
                 showOpenAccess={showOpenAccess}
                 onBookSelect={handleBookSelect}

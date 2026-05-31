@@ -16,7 +16,6 @@ const COVER_W    = 96;
 const COVER_H    = 148;
 const DEPTH      = 22;   // book thickness (fore-edge visible width)
 const BOOK_GAP   = 8;
-const PER_ROW    = 7;
 const SHELF_TOP  = 22;   // plank thickness
 const SHELF_BTM  = 7;    // darker underside
 const ROW_GAP    = 44;   // vertical space between shelf rows
@@ -413,6 +412,7 @@ function ShelfRow({
 
 interface WallShelfProps {
   shelves: Shelf[];
+  perRow?: number;
   showBanned?: boolean;
   showOpenAccess?: boolean;
   onBookSelect?: (book: Book) => void;
@@ -422,7 +422,7 @@ interface WallShelfProps {
   onDragEnd?: () => void;
 }
 
-export function WallShelf({ shelves, showBanned = false, showOpenAccess = true, onBookSelect, draggingId, onReorderBooks, onDragStart, onDragEnd }: WallShelfProps) {
+export function WallShelf({ shelves, perRow = 7, showBanned = false, showOpenAccess = true, onBookSelect, draggingId, onReorderBooks, onDragStart, onDragEnd }: WallShelfProps) {
   const allBooks = useMemo(() =>
     [...shelves]
       .filter((s) => s.books.length > 0)
@@ -437,8 +437,8 @@ export function WallShelf({ shelves, showBanned = false, showOpenAccess = true, 
   if (allBooks.length === 0) return null;
 
   const rows: Book[][] = [];
-  for (let i = 0; i < allBooks.length; i += PER_ROW) {
-    rows.push(allBooks.slice(i, i + PER_ROW));
+  for (let i = 0; i < allBooks.length; i += perRow) {
+    rows.push(allBooks.slice(i, i + perRow));
   }
 
   return (

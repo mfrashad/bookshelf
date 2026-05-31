@@ -16,6 +16,7 @@ const COVER_H = 126;
 
 interface CoverGridProps {
   shelves: Shelf[];
+  columns?: number;
   exportMode?: boolean;
   showBanned?: boolean;
   showOpenAccess?: boolean;
@@ -152,7 +153,7 @@ function CoverCard({
   );
 }
 
-export function CoverGrid({ shelves, exportMode = false, showBanned = false, showOpenAccess = true, groupByYear: groupByYearProp = false, draggingId, onReorderBooks, onDragStart, onDragEnd }: CoverGridProps) {
+export function CoverGrid({ shelves, columns = 7, exportMode = false, showBanned = false, showOpenAccess = true, groupByYear: groupByYearProp = false, draggingId, onReorderBooks, onDragStart, onDragEnd }: CoverGridProps) {
   const [groupByYear, setGroupByYear] = useState(groupByYearProp);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
@@ -200,7 +201,7 @@ export function CoverGrid({ shelves, exportMode = false, showBanned = false, sho
             </div>
           )}
           <div
-            style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}
+            style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, ${COVER_W}px)`, gap: 8 }}
             onDragLeave={(e) => {
               if (!exportMode && !e.currentTarget.contains(e.relatedTarget as Node)) setDragOverId(null);
             }}
