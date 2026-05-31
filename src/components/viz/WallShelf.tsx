@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { Book, Shelf } from '@/lib/types';
 import { hashColor, spineTextColor, cleanTitle } from '@/lib/spine';
 import { isBanned } from '@/data/banned-books';
+import { useOpenAccess, getAccessInfo, type OpenAccessInfo } from '@/hooks/useOpenAccess';
 
 // ─── Layout constants ─────────────────────────────────────────────────────────
 const COVER_W    = 96;
@@ -27,6 +28,7 @@ const BRACKET = '#6a6a72';
 function Book3D({
   book,
   showBanned,
+  accessInfo,
   onBookSelect,
   draggingId,
   draggingBook,
@@ -36,6 +38,7 @@ function Book3D({
 }: {
   book: Book;
   showBanned: boolean;
+  accessInfo?: OpenAccessInfo | null;
   onBookSelect?: (b: Book) => void;
   draggingId?: string | null;
   draggingBook?: Book | null;
@@ -194,6 +197,25 @@ function Book3D({
               🚫
             </div>
           )}
+          {/* Open access badge */}
+          {accessInfo?.access === 'public' && (
+            <a
+              href={accessInfo.url ?? `https://openlibrary.org/search?isbn=${book.isbn}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Free to read on Open Library"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'absolute', bottom: 5, left: 5, zIndex: 10,
+                background: '#16a34a', color: '#fff',
+                fontSize: 7, fontWeight: 700, letterSpacing: '0.04em',
+                padding: '2px 4px', borderRadius: 3, lineHeight: 1,
+                textDecoration: 'none',
+              }}
+            >
+              FREE
+            </a>
+          )}
           {isDropTarget && draggingBook && (draggingBook.id as string) !== (book.id as string) && (
             <>
               <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: hashColor(draggingBook.title) }} />
@@ -292,6 +314,7 @@ function Bracket({ side }: { side: 'left' | 'right' }) {
 function ShelfRow({
   books,
   showBanned,
+  openAccess,
   onBookSelect,
   draggingId,
   draggingBook,
@@ -301,6 +324,7 @@ function ShelfRow({
 }: {
   books: Book[];
   showBanned: boolean;
+  openAccess: Map<string, OpenAccessInfo>;
   onBookSelect?: (b: Book) => void;
   draggingId?: string | null;
   draggingBook?: Book | null;
@@ -330,6 +354,7 @@ function ShelfRow({
             key={book.id as string}
             book={book}
             showBanned={showBanned}
+            accessInfo={getAccessInfo(openAccess, book)}
             onBookSelect={onBookSelect}
             draggingId={draggingId}
             draggingBook={draggingBook}
@@ -402,11 +427,15 @@ interface WallShelfProps {
 }
 
 export function WallShelf({ shelves, showBanned = false, onBookSelect, draggingId, onReorderBooks, onDragStart, onDragEnd }: WallShelfProps) {
-  const allBooks = [...shelves]
-    .filter((s) => s.books.length > 0)
-    .sort((a, b) => b.title.localeCompare(a.title))
-    .flatMap((s) => s.books);
+  const allBooks = useMemo(() =>
+    [...shelves]
+      .filter((s) => s.books.length > 0)
+      .sort((a, b) => b.title.localeCompare(a.title))
+      .flatMap((s) => s.books),
+    [shelves],
+  );
 
+  const openAccess = useOpenAccess(allBooks);
   const draggingBook = draggingId ? (allBooks.find((b) => (b.id as string) === draggingId) ?? null) : null;
 
   if (allBooks.length === 0) return null;
@@ -433,6 +462,7 @@ export function WallShelf({ shelves, showBanned = false, onBookSelect, draggingI
           key={i}
           books={rowBooks}
           showBanned={showBanned}
+          openAccess={openAccess}
           onBookSelect={onBookSelect}
           draggingId={draggingId}
           draggingBook={draggingBook}
