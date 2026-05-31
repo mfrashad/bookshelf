@@ -341,6 +341,8 @@ export default function LibraryPage() {
             {vizMode === 'stack' && (
               <BookStackChart
                 shelves={displayShelves}
+                showBanned={showBanned}
+                showOpenAccess={showOpenAccess}
                 onBookSelect={handleBookSelect}
                 onMoveBook={handleMoveBook}
                 onHideBook={handleHideBook}

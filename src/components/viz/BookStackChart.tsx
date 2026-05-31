@@ -12,12 +12,17 @@ import {
 } from '@dnd-kit/core';
 import type { Book, Shelf } from '@/lib/types';
 import { hashColor, hashNum, spineTextColor, cleanTitle } from '@/lib/spine';
+import { isBanned } from '@/data/banned-books';
+import { useOpenAccess, getAccessInfo } from '@/hooks/useOpenAccess';
+import { BANNED_RING, PUBLIC_DOMAIN_RING } from './BookBadges';
 
 interface BookStackChartProps {
   shelves: Shelf[];
   exportMode?: boolean;
   exportWidth?: number;
   exportHeight?: number;
+  showBanned?: boolean;
+  showOpenAccess?: boolean;
   onBookSelect?: (book: Book) => void;
   onMoveBook?: (bookId: string, toYear: number) => void;
   onHideBook?: (bookId: string) => void;
@@ -43,6 +48,8 @@ interface SpineProps {
   pxPerPage: number;
   exportMode: boolean;
   dndEnabled: boolean;
+  showBanned: boolean;
+  isPublic: boolean;
   chartRef: React.RefObject<HTMLDivElement | null>;
   setHoveredBook: (v: { title: string; author: string; pages: number; x: number; y: number } | null) => void;
   onBookSelect?: (book: Book) => void;
@@ -51,9 +58,10 @@ interface SpineProps {
 
 function BookSpine({
   book, shelfTitle, BASE_WIDTH, pxPerPage,
-  exportMode, dndEnabled, chartRef, setHoveredBook, onBookSelect, onHideBook,
+  exportMode, dndEnabled, showBanned, isPublic, chartRef, setHoveredBook, onBookSelect, onHideBook,
 }: SpineProps) {
   const [spineHovered, setSpineHovered] = useState(false);
+  const banned = showBanned && isBanned(book.title);
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: book.id as string,
     disabled: !dndEnabled,
@@ -105,7 +113,7 @@ function BookSpine({
         borderRadius,
         transform: `translateX(${offsetX}px)`,
         cursor: exportMode ? 'default' : dndEnabled ? 'grab' : 'pointer',
-        boxShadow: `inset 0 1px 0 ${lighten}0.15),inset 0 -1px 0 ${darken}0.2),0 1px 2px ${darken}0.15)`,
+        boxShadow: `${banned ? `${BANNED_RING},` : isPublic ? `${PUBLIC_DOMAIN_RING},` : ''}inset 0 1px 0 ${lighten}0.15),inset 0 -1px 0 ${darken}0.2),0 1px 2px ${darken}0.15)`,
         backgroundImage: `linear-gradient(to right,${darken}0.18) 0%,${darken}0.06) 6%,${lighten}0.06) 15%,${lighten}0.1) 45%,${lighten}0.04) 55%,${darken}0.04) 85%,${darken}0.15) 100%)`,
         ...transformStyle,
       }}
@@ -141,6 +149,14 @@ function BookSpine({
         >
           ×
         </div>
+      )}
+      {banned && (
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(185,28,28,0.32)', zIndex: 8, pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {spineHeight >= 20 && <span style={{ fontSize: Math.min(spineHeight * 0.5, 28), lineHeight: 1, filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))' }}>🚫</span>}
+        </div>
+      )}
+      {isPublic && !banned && (
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(21,128,61,0.22)', zIndex: 8, pointerEvents: 'none' }} />
       )}
       {spineHeight >= 14 && (
         <>
@@ -230,6 +246,8 @@ function BookStackChart({
   exportMode = false,
   exportWidth,
   exportHeight,
+  showBanned = false,
+  showOpenAccess = true,
   onBookSelect,
   onMoveBook,
   onHideBook,
@@ -272,6 +290,7 @@ function BookStackChart({
 
   const allBooks = useMemo(() => sortedShelves.flatMap((s) => s.books), [sortedShelves]);
   const totalAllPages = useMemo(() => allBooks.reduce((sum, b) => sum + (b.pageCount || 0), 0), [allBooks]);
+  const openAccess = useOpenAccess(exportMode ? [] : allBooks);
 
   const maxPages = useMemo(() => {
     if (viewMode === 'showAll') return totalAllPages;
@@ -498,6 +517,8 @@ function BookStackChart({
                                 pxPerPage={renderPxPerPage}
                                 exportMode={exportMode}
                                 dndEnabled={dndEnabled}
+                                showBanned={showBanned}
+                                isPublic={showOpenAccess && getAccessInfo(openAccess, book)?.access === 'public'}
                                 chartRef={chartRef}
                                 setHoveredBook={setHoveredBook}
                                 onBookSelect={onBookSelect}
@@ -528,6 +549,8 @@ function BookStackChart({
                             pxPerPage={renderPxPerPage}
                             exportMode={exportMode}
                             dndEnabled={false}
+                            showBanned={showBanned}
+                            isPublic={showOpenAccess && getAccessInfo(openAccess, book)?.access === 'public'}
                             chartRef={chartRef}
                             setHoveredBook={setHoveredBook}
                             onBookSelect={onBookSelect}
