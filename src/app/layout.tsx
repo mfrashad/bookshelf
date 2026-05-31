@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: '%s | Bookshelf',
   },
   description:
-    'Turn your Goodreads or Hardcover library into a beautiful poster. Track your reading, visualize your bookshelf, and share your reading year — free. Built by Fathy Rashad for buildforpublic.com.',
+    'Turn your Goodreads or Hardcover library into a beautiful poster. Track your reading, visualize your bookshelf, and share your reading year — free. An open-source project by Build for Public (buildforpublic.com).',
   keywords: [
     'digital bookshelf',
     'digital library',

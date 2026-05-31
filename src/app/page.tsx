@@ -126,7 +126,7 @@ const jsonLd = {
   },
   creator: {
     '@type': 'Organization',
-    name: 'AI for Good Malaysia',
+    name: 'Build for Public',
     url: 'https://buildforpublic.com',
   },
   keywords:
@@ -387,16 +387,15 @@ export default function LandingPage() {
           {/* Attribution card */}
           <div style={{ background: '#94e8ff', border: '2px solid #000', padding: '36px', boxShadow: '5px 5px 0px #000', marginTop: 56 }}>
             <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: '#000', marginBottom: 16 }}>
-              Built with AI for Good
+              Part of Build for Public
             </h3>
             <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 16, color: '#000', lineHeight: 1.7, marginBottom: 16 }}>
-              This project is part of{' '}
+              Bookshelf is an open-source project by{' '}
               <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#000', fontWeight: 700, textDecoration: 'underline' }}>
-                buildforpublic.com
+                Build for Public
               </a>
-              {' '}— a Malaysian initiative using AI to create tools that matter. We believe technology
-              should serve people, not just profit. Bookshelf was built on World Book Day as a free,
-              open-source gift to readers everywhere.
+              {' '}— a community of builders shipping open-source tools for social good. We connect developers,
+              designers, and advocates to build things that matter for real people and communities.
             </p>
             <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 16, color: '#000', lineHeight: 1.7 }}>
               Every library shared is a reminder that reading is a privilege — and a right.
@@ -408,7 +407,7 @@ export default function LandingPage() {
               </a>
               {' · '}
               <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(0,0,0,0.4)', textDecoration: 'underline', textUnderlineOffset: 2 }}>
-                Volunteer with buildforpublic.com →
+                Join Build for Public →
               </a>
             </p>
           </div>
