@@ -310,81 +310,80 @@ export function ScatterDrift({ shelves, radius = DEFAULT_RADIUS, spacing = DEFAU
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
-      {/* Hint */}
-      <div style={{
-        position: 'absolute',
-        top: 148,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        fontSize: 11,
-        color: '#bbb',
-        letterSpacing: '0.05em',
-        pointerEvents: 'none',
-        userSelect: 'none',
-        whiteSpace: 'nowrap',
-      }}>
-        drag to rotate
-      </div>
-
-      <div style={{ position: 'relative', width: CANVAS_W, height: canvasH }}>
-        {/* Year labels — at the start of each year's range */}
-        {yearMarkers.map(({ year, boundaryY, startY }) => (
-          <div
-            key={year}
-            style={{
-              position: 'absolute',
-              top: boundaryY ?? startY,
-              left: 0,
-              transform: 'translateY(-50%)',
-              zIndex: 2,
-              pointerEvents: 'none',
-            }}
-          >
-            <div style={{
-              padding: '2px 8px 2px 6px',
-              fontSize: 10,
-              fontWeight: 700,
-              color: 'rgba(0,0,0,0.28)',
-              letterSpacing: '0.04em',
-              fontFamily: 'var(--font-display, sans-serif)',
-              userSelect: 'none',
-            }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+        {/* Year labels column — fully outside the book canvas, no overlap possible */}
+        <div style={{ position: 'relative', width: 44, height: canvasH, flexShrink: 0, pointerEvents: 'none' }}>
+          {yearMarkers.map(({ year, boundaryY, startY }) => (
+            <div
+              key={year}
+              style={{
+                position: 'absolute',
+                top: boundaryY ?? startY,
+                right: 0,
+                transform: 'translateY(-50%)',
+                fontSize: 10,
+                fontWeight: 700,
+                color: 'rgba(0,0,0,0.30)',
+                letterSpacing: '0.04em',
+                fontFamily: 'var(--font-display, sans-serif)',
+                userSelect: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {year}
             </div>
+          ))}
+        </div>
+
+        {/* Book canvas */}
+        <div style={{ position: 'relative', width: CANVAS_W, height: canvasH }}>
+          {/* Hint */}
+          <div style={{
+            position: 'absolute',
+            top: 148,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: 11,
+            color: '#bbb',
+            letterSpacing: '0.05em',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            whiteSpace: 'nowrap',
+          }}>
+            drag to rotate
           </div>
-        ))}
-        {allBooks.map((book, i) => {
-          const fallbackBg = hashColor(book.title);
-          const fallbackFg = spineTextColor(fallbackBg);
-          // Initial props (frame loop will overwrite instantly)
-          const c = consts[i];
-          const init = bookProps(rotRef.current + c.baseAngle, c.rotJitter, radius);
-          return (
-            <ScatterCard
-              key={book.id as string}
-              ref={(el) => { bookRefs.current[i] = el; }}
-              book={book}
-              showBanned={showBanned}
-              showOpenAccess={showOpenAccess}
-              accessInfo={getAccessInfo(openAccess, book)}
-              fallbackBg={fallbackBg}
-              fallbackFg={fallbackFg}
-              initW={init.w}
-              initStyle={{
-                position: 'absolute',
-                left: init.x + c.jx,
-                top: c.y,
-                width: init.w,
-                height: init.h,
-                opacity: init.alpha,
-                zIndex: init.z,
-                borderRadius: 2,
-                transform: `translate(-50%,-50%) rotate(${init.rot}deg)`,
-              }}
-              onClick={() => onBookSelect?.(book)}
-            />
-          );
-        })}
+          {allBooks.map((book, i) => {
+            const fallbackBg = hashColor(book.title);
+            const fallbackFg = spineTextColor(fallbackBg);
+            const c = consts[i];
+            const init = bookProps(rotRef.current + c.baseAngle, c.rotJitter, radius);
+            return (
+              <ScatterCard
+                key={book.id as string}
+                ref={(el) => { bookRefs.current[i] = el; }}
+                book={book}
+                showBanned={showBanned}
+                showOpenAccess={showOpenAccess}
+                accessInfo={getAccessInfo(openAccess, book)}
+                fallbackBg={fallbackBg}
+                fallbackFg={fallbackFg}
+                initW={init.w}
+                initStyle={{
+                  position: 'absolute',
+                  left: init.x + c.jx,
+                  top: c.y,
+                  width: init.w,
+                  height: init.h,
+                  opacity: init.alpha,
+                  zIndex: init.z,
+                  borderRadius: 2,
+                  transform: `translate(-50%,-50%) rotate(${init.rot}deg)`,
+                }}
+                onClick={() => onBookSelect?.(book)}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );
