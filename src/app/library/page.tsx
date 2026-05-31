@@ -12,6 +12,7 @@ import { ExportSurface } from '@/components/export/ExportSurface';
 import { LiteracyBanner } from '@/components/social/LiteracyBanner';
 import { PledgeModal } from '@/components/social/PledgeModal';
 import { useLibrary } from '@/hooks/useLibrary';
+import { useOpenAccess, getAccessInfo } from '@/hooks/useOpenAccess';
 import { isBanned } from '@/data/banned-books';
 import type { AspectRatio, Book, VizMode } from '@/lib/types';
 import { ASPECT_RATIO_DIMS } from '@/lib/types';
@@ -85,6 +86,12 @@ export default function LibraryPage() {
   const isEmpty = loaded && bookCount === 0;
 
   const bannedCount = books.filter((b) => isBanned(b.title)).length;
+
+  const openAccessResults = useOpenAccess(loaded ? books : []);
+  const publicDomainBooks = useMemo(
+    () => books.filter((b) => getAccessInfo(openAccessResults, b)?.access === 'public'),
+    [books, openAccessResults],
+  );
 
   if (isEmpty && confirmClear) setConfirmClear(false);
 
@@ -285,6 +292,42 @@ export default function LibraryPage() {
             style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#000', textDecoration: 'underline', whiteSpace: 'nowrap' }}
           >
             Learn more →
+          </a>
+        </div>
+      )}
+
+      {/* Public domain banner */}
+      {showOpenAccess && publicDomainBooks.length > 0 && (
+        <div style={{ background: '#d1fae5', border: '2px solid #000', borderTop: 'none', padding: '10px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+          <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#000', lineHeight: 1.5 }}>
+            <span style={{ fontWeight: 700 }}>{publicDomainBooks.length} book{publicDomainBooks.length !== 1 ? 's' : ''}</span> in your library
+            {' '}{publicDomainBooks.length === 1 ? 'is' : 'are'} in the public domain —{' '}
+            {publicDomainBooks.length === 1 ? "it's" : "they're"} free to read online for anyone, anywhere.{' '}
+            {publicDomainBooks.slice(0, 3).map((b, i) => {
+              const info = getAccessInfo(openAccessResults, b);
+              return (
+                <span key={b.id as string}>
+                  {i > 0 && ', '}
+                  <a
+                    href={info?.url ?? `https://openlibrary.org/search?q=${encodeURIComponent(b.title)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#000', fontWeight: 600, textDecoration: 'underline' }}
+                  >
+                    {b.title}
+                  </a>
+                </span>
+              );
+            })}
+            {publicDomainBooks.length > 3 && ` and ${publicDomainBooks.length - 3} more`}.
+          </p>
+          <a
+            href="https://openlibrary.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#000', textDecoration: 'underline', whiteSpace: 'nowrap' }}
+          >
+            Read on Open Library →
           </a>
         </div>
       )}
