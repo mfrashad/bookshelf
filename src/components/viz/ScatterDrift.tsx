@@ -310,49 +310,49 @@ export function ScatterDrift({ shelves, radius = DEFAULT_RADIUS, spacing = DEFAU
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-        {/* Year labels column — fully outside the book canvas, no overlap possible */}
-        <div style={{ position: 'relative', width: 44, height: canvasH, flexShrink: 0, pointerEvents: 'none' }}>
-          {yearMarkers.map(({ year, boundaryY, startY }) => (
-            <div
-              key={year}
-              style={{
-                position: 'absolute',
-                top: boundaryY ?? startY,
-                right: 0,
-                transform: 'translateY(-50%)',
-                fontSize: 10,
-                fontWeight: 700,
-                color: 'rgba(0,0,0,0.30)',
-                letterSpacing: '0.04em',
-                fontFamily: 'var(--font-display, sans-serif)',
-                userSelect: 'none',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {year}
-            </div>
-          ))}
+      <div style={{ position: 'relative', width: CANVAS_W, height: canvasH }}>
+        {/* Hint */}
+        <div style={{
+          position: 'absolute',
+          top: 148,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontSize: 11,
+          color: '#bbb',
+          letterSpacing: '0.05em',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          whiteSpace: 'nowrap',
+          zIndex: 1,
+        }}>
+          drag to rotate
         </div>
 
-        {/* Book canvas */}
-        <div style={{ position: 'relative', width: CANVAS_W, height: canvasH }}>
-          {/* Hint */}
-          <div style={{
-            position: 'absolute',
-            top: 148,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            fontSize: 11,
-            color: '#bbb',
-            letterSpacing: '0.05em',
-            pointerEvents: 'none',
-            userSelect: 'none',
-            whiteSpace: 'nowrap',
-          }}>
-            drag to rotate
+        {/* Year labels — centered in the helix, books float over them */}
+        {yearMarkers.map(({ year, boundaryY, startY }) => (
+          <div
+            key={year}
+            style={{
+              position: 'absolute',
+              top: boundaryY ?? startY,
+              left: '50%',
+              transform: 'translateX(-50%) translateY(-50%)',
+              fontSize: 10,
+              fontWeight: 700,
+              color: 'rgba(0,0,0,0.22)',
+              letterSpacing: '0.06em',
+              fontFamily: 'var(--font-display, sans-serif)',
+              userSelect: 'none',
+              whiteSpace: 'nowrap',
+              pointerEvents: 'none',
+              zIndex: 1,
+            }}
+          >
+            {year}
           </div>
-          {allBooks.map((book, i) => {
+        ))}
+
+        {allBooks.map((book, i) => {
             const fallbackBg = hashColor(book.title);
             const fallbackFg = spineTextColor(fallbackBg);
             const c = consts[i];
@@ -383,7 +383,6 @@ export function ScatterDrift({ shelves, radius = DEFAULT_RADIUS, spacing = DEFAU
               />
             );
           })}
-        </div>
       </div>
     </div>
   );
