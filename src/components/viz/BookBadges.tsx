@@ -55,7 +55,7 @@ export function BannedBadge({ title }: { title: string }) {
 
 export function OpenAccessBadge({ info, isbn }: { info: OpenAccessInfo; isbn?: string }) {
   if (info.access !== 'public') return null;
-  const href = info.url ?? (isbn ? `https://openlibrary.org/search?isbn=${isbn}` : 'https://openlibrary.org');
+  const href = info.url ?? (isbn ? `https://www.gutenberg.org/ebooks/search/?query=${encodeURIComponent(isbn)}` : 'https://www.gutenberg.org');
 
   return (
     <a

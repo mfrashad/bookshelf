@@ -309,7 +309,7 @@ export default function LibraryPage() {
                 <span key={b.id as string}>
                   {i > 0 && ', '}
                   <a
-                    href={info?.url ?? `https://openlibrary.org/search?q=${encodeURIComponent(b.title)}`}
+                    href={info?.url ?? `https://www.gutenberg.org/ebooks/search/?query=${encodeURIComponent(b.title)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ color: '#000', fontWeight: 600, textDecoration: 'underline' }}
@@ -322,12 +322,12 @@ export default function LibraryPage() {
             {publicDomainBooks.length > 3 && ` and ${publicDomainBooks.length - 3} more`}.
           </p>
           <a
-            href="https://openlibrary.org"
+            href="https://www.gutenberg.org"
             target="_blank"
             rel="noopener noreferrer"
             style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#000', textDecoration: 'underline', whiteSpace: 'nowrap' }}
           >
-            Read on Open Library →
+            Browse Project Gutenberg →
           </a>
         </div>
       )}
