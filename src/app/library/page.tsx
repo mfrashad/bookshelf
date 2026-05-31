@@ -10,7 +10,6 @@ import { WallShelf } from '@/components/viz/WallShelf';
 import { MosaicGrid } from '@/components/viz/MosaicGrid';
 import { PixelGrid } from '@/components/viz/PixelGrid';
 import { ScatterDrift } from '@/components/viz/ScatterDrift';
-import { TurntableCarousel } from '@/components/viz/TurntableCarousel';
 import { ExportSurface } from '@/components/export/ExportSurface';
 import { LiteracyBanner } from '@/components/social/LiteracyBanner';
 import { PledgeModal } from '@/components/social/PledgeModal';
@@ -28,7 +27,6 @@ const VIZ_MODES: { id: VizMode; label: string; icon: string }[] = [
   { id: 'mosaic',  label: 'Mosaic',       icon: '◼️' },
   { id: 'pixel',   label: 'Pixel Art',    icon: '🎮' },
   { id: 'scatter',    label: 'Spiral Drift',  icon: '🌀' },
-  { id: 'turntable', label: 'Turntable',     icon: '💿' },
 ];
 
 export default function LibraryPage() {
@@ -356,13 +354,6 @@ export default function LibraryPage() {
             )}
             {vizMode === 'scatter' && (
               <ScatterDrift
-                shelves={displayShelves}
-                showBanned={showBanned}
-                onBookSelect={handleBookSelect}
-              />
-            )}
-            {vizMode === 'turntable' && (
-              <TurntableCarousel
                 shelves={displayShelves}
                 showBanned={showBanned}
                 onBookSelect={handleBookSelect}

@@ -332,7 +332,7 @@ export default function GivePage() {
         <div style={{ marginTop: 56, paddingTop: 28, borderTop: '2px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 14, color: '#333', lineHeight: 1.5, maxWidth: 440 }}>
             Know an organisation we're missing?{' '}
-            <a href="mailto:hello@aiforgood.my" style={{ color: '#000', fontWeight: 700, textDecoration: 'underline' }}>Let us know</a> and we'll add it.
+            <a href="mailto:m.fathyrashad@gmail.com" style={{ color: '#000', fontWeight: 700, textDecoration: 'underline' }}>Let us know</a> and we'll add it.
           </p>
           <a
             href="https://github.com"
