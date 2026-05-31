@@ -209,6 +209,27 @@ export function ScatterDrift({ shelves, radius = DEFAULT_RADIUS, spacing = DEFAU
   const consts     = useMemo(() => buildConstants(allBooks.length, canvasH), [allBooks.length, canvasH]);
   const openAccess = useOpenAccess(exportMode ? [] : allBooks);
 
+  // Year band markers — nominal y without jitter
+  const yearMarkers = useMemo(() => {
+    const count = allBooks.length;
+    const sorted = [...shelves]
+      .filter((s) => s.books.length > 0)
+      .sort((a, b) => b.title.localeCompare(a.title));
+    const nomY = (idx: number) => {
+      const t = count <= 1 ? 0.5 : idx / (count - 1);
+      return PAD + t * (canvasH - PAD * 2);
+    };
+    let idx = 0;
+    return sorted.map((shelf) => {
+      const startIdx = idx;
+      const endIdx   = idx + shelf.books.length - 1;
+      idx += shelf.books.length;
+      const midY      = (nomY(startIdx) + nomY(endIdx)) / 2;
+      const boundaryY = startIdx === 0 ? null : (nomY(startIdx - 1) + nomY(startIdx)) / 2;
+      return { year: shelf.title, midY, boundaryY };
+    });
+  }, [shelves, allBooks.length, canvasH]);
+
   // DOM refs — updated directly each frame, bypassing React renders
   const bookRefs  = useRef<(HTMLDivElement | null)[]>([]);
   const radiusRef = useRef(radius);
@@ -307,6 +328,48 @@ export function ScatterDrift({ shelves, radius = DEFAULT_RADIUS, spacing = DEFAU
       </div>
 
       <div style={{ position: 'relative', width: CANVAS_W, height: canvasH }}>
+        {/* Year bands — rendered before books so they sit behind */}
+        {yearMarkers.map(({ year, midY, boundaryY }) => (
+          <div key={year} style={{ position: 'absolute', left: 0, right: 0, top: 0, pointerEvents: 'none' }}>
+            {/* Dividing line between this year and the previous */}
+            {boundaryY !== null && (
+              <div style={{
+                position: 'absolute',
+                top: boundaryY,
+                left: 24,
+                right: 24,
+                height: 1,
+                background: 'rgba(0,0,0,0.10)',
+                zIndex: 1,
+              }} />
+            )}
+            {/* Year label at the midpoint of this year's range */}
+            <div style={{
+              position: 'absolute',
+              top: midY,
+              left: 0,
+              transform: 'translateY(-50%)',
+              zIndex: 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+            }}>
+              <div style={{
+                background: 'rgba(0,0,0,0.06)',
+                borderRadius: '0 6px 6px 0',
+                padding: '2px 8px 2px 6px',
+                fontSize: 10,
+                fontWeight: 700,
+                color: 'rgba(0,0,0,0.28)',
+                letterSpacing: '0.04em',
+                fontFamily: 'var(--font-display, sans-serif)',
+                userSelect: 'none',
+              }}>
+                {year}
+              </div>
+            </div>
+          </div>
+        ))}
         {allBooks.map((book, i) => {
           const fallbackBg = hashColor(book.title);
           const fallbackFg = spineTextColor(fallbackBg);
