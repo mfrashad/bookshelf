@@ -1,12 +1,20 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import type { Book, Shelf } from '@/lib/types';
 import { hashColor, spineTextColor } from '@/lib/spine';
+import { isBanned } from '@/data/banned-books';
+import { useOpenAccess, getAccessInfo, type OpenAccessInfo } from '@/hooks/useOpenAccess';
+import {
+  BannedOverlay, BannedTooltip,
+  PublicDomainOverlay, OpenAccessBadge,
+  BANNED_RING, PUBLIC_DOMAIN_RING,
+} from './BookBadges';
 
 interface ScatterDriftProps {
   shelves: Shelf[];
   showBanned?: boolean;
+  showOpenAccess?: boolean;
   onBookSelect?: (book: Book) => void;
   exportMode?: boolean;
 }
@@ -100,6 +108,58 @@ function StaticView({ allBooks }: { allBooks: Book[] }) {
   );
 }
 
+// Per-card component so hover state doesn't cause full ScatterDrift re-renders
+const ScatterCard = forwardRef<HTMLDivElement, {
+  book: Book;
+  initStyle: React.CSSProperties;
+  showBanned: boolean;
+  showOpenAccess: boolean;
+  accessInfo: OpenAccessInfo | null;
+  fallbackBg: string;
+  fallbackFg: string;
+  initW: number;
+  onClick: () => void;
+}>(function ScatterCard({ book, initStyle, showBanned, showOpenAccess, accessInfo, fallbackBg, fallbackFg, initW, onClick }, ref) {
+  const [hovered, setHovered] = useState(false);
+  const banned   = showBanned && isBanned(book.title);
+  const isPublic = showOpenAccess && accessInfo?.access === 'public';
+  const ring     = banned ? BANNED_RING : isPublic ? PUBLIC_DOMAIN_RING : null;
+  const baseShadow = '0 2px 8px rgba(0,0,0,0.09), 0 1px 2px rgba(0,0,0,0.05)';
+  const hoverShadow = '0 6px 22px rgba(0,0,0,0.18)';
+
+  return (
+    <div
+      ref={ref}
+      title={`${book.title}${book.authors?.[0]?.name ? ` — ${book.authors[0].name}` : ''}`}
+      onClick={onClick}
+      onMouseEnter={(e) => {
+        setHovered(true);
+        (e.currentTarget as HTMLElement).style.boxShadow = ring ? `${ring}, ${hoverShadow}` : hoverShadow;
+      }}
+      onMouseLeave={(e) => {
+        setHovered(false);
+        (e.currentTarget as HTMLElement).style.boxShadow = ring ? `${ring}, ${baseShadow}` : baseShadow;
+      }}
+      style={{
+        ...initStyle,
+        boxShadow: ring ? `${ring}, ${baseShadow}` : baseShadow,
+        cursor: 'pointer',
+        transition: 'box-shadow 0.15s',
+      }}
+    >
+      {/* Inner: overflow:hidden for cover clipping */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', borderRadius: 2 }}>
+        <BookFace book={book} w={initW} fallbackBg={fallbackBg} fallbackFg={fallbackFg} />
+        {banned && <BannedOverlay />}
+        {isPublic && !banned && <PublicDomainOverlay />}
+      </div>
+      {/* Outside overflow:hidden */}
+      {banned && <BannedTooltip title={book.title} show={hovered} />}
+      {isPublic && accessInfo && <OpenAccessBadge info={accessInfo} isbn={book.isbn} />}
+    </div>
+  );
+});
+
 function BookFace({ book, w, fallbackBg, fallbackFg }: { book: Book; w: number; fallbackBg: string; fallbackFg: string }) {
   const initial = book.title.trim()[0]?.toUpperCase() ?? '?';
   return (
@@ -133,7 +193,7 @@ function BookFace({ book, w, fallbackBg, fallbackFg }: { book: Book; w: number; 
   );
 }
 
-export function ScatterDrift({ shelves, showBanned = false, onBookSelect, exportMode = false }: ScatterDriftProps) {
+export function ScatterDrift({ shelves, showBanned = false, showOpenAccess = true, onBookSelect, exportMode = false }: ScatterDriftProps) {
   const allBooks = useMemo(() =>
     [...shelves]
       .filter((s) => s.books.length > 0)
@@ -142,7 +202,8 @@ export function ScatterDrift({ shelves, showBanned = false, onBookSelect, export
     [shelves]
   );
 
-  const consts = useMemo(() => buildConstants(allBooks.length), [allBooks.length]);
+  const consts     = useMemo(() => buildConstants(allBooks.length), [allBooks.length]);
+  const openAccess = useOpenAccess(exportMode ? [] : allBooks);
 
   // DOM refs — updated directly each frame, bypassing React renders
   const bookRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -249,12 +310,17 @@ export function ScatterDrift({ shelves, showBanned = false, onBookSelect, export
           const c = consts[i];
           const init = bookProps(rotRef.current + c.baseAngle, c.rotJitter);
           return (
-            <div
+            <ScatterCard
               key={book.id as string}
               ref={(el) => { bookRefs.current[i] = el; }}
-              title={`${book.title}${book.authors?.[0]?.name ? ` — ${book.authors[0].name}` : ''}`}
-              onClick={() => onBookSelect?.(book)}
-              style={{
+              book={book}
+              showBanned={showBanned}
+              showOpenAccess={showOpenAccess}
+              accessInfo={getAccessInfo(openAccess, book)}
+              fallbackBg={fallbackBg}
+              fallbackFg={fallbackFg}
+              initW={init.w}
+              initStyle={{
                 position: 'absolute',
                 left: init.x + c.jx,
                 top: c.y,
@@ -262,18 +328,11 @@ export function ScatterDrift({ shelves, showBanned = false, onBookSelect, export
                 height: init.h,
                 opacity: init.alpha,
                 zIndex: init.z,
-                overflow: 'hidden',
                 borderRadius: 2,
                 transform: `translate(-50%,-50%) rotate(${init.rot}deg)`,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.09), 0 1px 2px rgba(0,0,0,0.05)',
-                cursor: 'pointer',
-                transition: 'box-shadow 0.15s',
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 22px rgba(0,0,0,0.18)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.09), 0 1px 2px rgba(0,0,0,0.05)'; }}
-            >
-              <BookFace book={book} w={init.w} fallbackBg={fallbackBg} fallbackFg={fallbackFg} />
-            </div>
+              onClick={() => onBookSelect?.(book)}
+            />
           );
         })}
       </div>

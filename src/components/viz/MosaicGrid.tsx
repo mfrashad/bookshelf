@@ -1,8 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { Book, Shelf } from '@/lib/types';
 import { isBanned } from '@/data/banned-books';
+import { useOpenAccess, getAccessInfo, type OpenAccessInfo } from '@/hooks/useOpenAccess';
+import { BannedTooltip, OpenAccessBadge } from './BookBadges';
 
 // ─── Original colour palette from the pen ────────────────────────────────────
 const YELLOW = 'rgba(238,188,31,1)';
@@ -152,6 +154,8 @@ function Diamond({
   book,
   idx,
   showBanned,
+  showOpenAccess,
+  accessInfo,
   onBookSelect,
   draggingId,
   draggingBook,
@@ -162,6 +166,8 @@ function Diamond({
   book: Book;
   idx: number;
   showBanned: boolean;
+  showOpenAccess: boolean;
+  accessInfo: OpenAccessInfo | null;
   onBookSelect?: (b: Book) => void;
   draggingId?: string | null;
   draggingBook?: Book | null;
@@ -170,19 +176,29 @@ function Diamond({
   onDragEnd?: () => void;
 }) {
   const [isDropTarget, setIsDropTarget] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const dragEnterCount = useRef(0);
   const [ca, cb] = pair(idx + 1);
   const ct = readable(ca);
-  const banned = showBanned && isBanned(book.title);
-  const initial = book.title.trim()[0]?.toUpperCase() ?? '?';
-  const author  = book.authors?.[0]?.name ?? '';
+  const banned   = showBanned && isBanned(book.title);
+  const isPublic = showOpenAccess && accessInfo?.access === 'public';
+  const initial  = book.title.trim()[0]?.toUpperCase() ?? '?';
+  const author   = book.authors?.[0]?.name ?? '';
 
   return (
     <li
       className="bdi"
-      style={{ '--ca': ca, '--cb': cb, '--ct': ct, opacity: draggingId === (book.id as string) ? 0.35 : 1 } as React.CSSProperties}
+      style={{
+        '--ca': ca, '--cb': cb, '--ct': ct,
+        opacity: draggingId === (book.id as string) ? 0.35 : 1,
+        filter: banned
+          ? 'drop-shadow(0 0 8px #b91c1c)'
+          : isPublic ? 'drop-shadow(0 0 6px #15803d)' : undefined,
+      } as React.CSSProperties}
       title={`${book.title}${author ? ` — ${author}` : ''}`}
       draggable
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       onDragStart={(e) => {
         e.dataTransfer.setData('text/plain', book.id as string);
         e.dataTransfer.effectAllowed = 'move';
@@ -251,19 +267,25 @@ function Diamond({
         </div>
       )}
 
-      {banned && (
-        <span style={{
-          position: 'absolute',
-          top: '12%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          fontSize: 12,
-          zIndex: 20,
-          pointerEvents: 'none',
+      {/* Tint + emoji overlay clipped to diamond shape */}
+      {(banned || isPublic) && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          clipPath: 'polygon(50% 0, 100% 50%, 50% 100%, 0 50%)',
+          WebkitClipPath: 'polygon(50% 0, 100% 50%, 50% 100%, 0 50%)',
+          background: banned ? 'rgba(185,28,28,0.32)' : 'rgba(21,128,61,0.22)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 21, pointerEvents: 'none',
         }}>
-          🚫
-        </span>
+          {banned && (
+            <span style={{ fontSize: 36, lineHeight: 1, marginTop: '-10%', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))' }}>
+              🚫
+            </span>
+          )}
+        </div>
       )}
+      {banned && <BannedTooltip title={book.title} show={hovered} />}
+      {isPublic && accessInfo && <OpenAccessBadge info={accessInfo} isbn={book.isbn} />}
       {isDropTarget && draggingBook && (draggingBook.id as string) !== (book.id as string) && (
         <div style={{
           position: 'absolute', inset: 0,
@@ -299,6 +321,7 @@ function Diamond({
 interface MosaicGridProps {
   shelves: Shelf[];
   showBanned?: boolean;
+  showOpenAccess?: boolean;
   onBookSelect?: (book: Book) => void;
   exportMode?: boolean;
   draggingId?: string | null;
@@ -310,6 +333,7 @@ interface MosaicGridProps {
 export function MosaicGrid({
   shelves,
   showBanned = false,
+  showOpenAccess = true,
   onBookSelect,
   exportMode = false,
   draggingId,
@@ -317,11 +341,15 @@ export function MosaicGrid({
   onDragStart,
   onDragEnd,
 }: MosaicGridProps) {
-  const allBooks = [...shelves]
-    .filter((s) => s.books.length > 0)
-    .sort((a, b) => b.title.localeCompare(a.title))
-    .flatMap((s) => s.books);
+  const allBooks = useMemo(() =>
+    [...shelves]
+      .filter((s) => s.books.length > 0)
+      .sort((a, b) => b.title.localeCompare(a.title))
+      .flatMap((s) => s.books),
+    [shelves],
+  );
 
+  const openAccess  = useOpenAccess(exportMode ? [] : allBooks);
   const draggingBook = draggingId ? (allBooks.find((b) => (b.id as string) === draggingId) ?? null) : null;
 
   if (allBooks.length === 0) return null;
@@ -347,6 +375,8 @@ export function MosaicGrid({
             book={book}
             idx={i}
             showBanned={showBanned}
+            showOpenAccess={showOpenAccess}
+            accessInfo={getAccessInfo(openAccess, book)}
             onBookSelect={onBookSelect}
             draggingId={draggingId}
             draggingBook={draggingBook}

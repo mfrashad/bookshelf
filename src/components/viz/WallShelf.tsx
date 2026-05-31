@@ -5,7 +5,11 @@ import type { Book, Shelf } from '@/lib/types';
 import { hashColor, spineTextColor, cleanTitle } from '@/lib/spine';
 import { isBanned } from '@/data/banned-books';
 import { useOpenAccess, getAccessInfo, type OpenAccessInfo } from '@/hooks/useOpenAccess';
-import { BannedBadge, OpenAccessBadge } from './BookBadges';
+import {
+  BannedOverlay, BannedTooltip,
+  PublicDomainOverlay, OpenAccessBadge,
+  BANNED_RING, PUBLIC_DOMAIN_RING,
+} from './BookBadges';
 
 // ─── Layout constants ─────────────────────────────────────────────────────────
 const COVER_W    = 96;
@@ -54,6 +58,8 @@ function Book3D({
   const dragEnterCount = useRef(0);
 
   const banned   = showBanned && isBanned(book.title);
+  const isPublic = showOpenAccess && accessInfo?.access === 'public';
+  const ring     = banned ? BANNED_RING : isPublic ? PUBLIC_DOMAIN_RING : null;
   const color    = hashColor(book.title);
   const fg       = spineTextColor(color);
   const initial  = book.title.trim()[0]?.toUpperCase() ?? '?';
@@ -131,8 +137,9 @@ function Book3D({
             inset: 0,
             overflow: 'hidden',
             borderRadius: '2px 3px 3px 2px',
-            boxShadow: hovered
-              ? '0 24px 56px rgba(0,0,0,0.8), 6px 0 14px rgba(0,0,0,0.45)'
+            boxShadow: ring
+              ? `${ring}, ${hovered ? '0 24px 56px rgba(0,0,0,0.8), 6px 0 14px rgba(0,0,0,0.45)' : '0 10px 28px rgba(0,0,0,0.65), 5px 0 10px rgba(0,0,0,0.35)'}`
+              : hovered ? '0 24px 56px rgba(0,0,0,0.8), 6px 0 14px rgba(0,0,0,0.45)'
               : '0 10px 28px rgba(0,0,0,0.65), 5px 0 10px rgba(0,0,0,0.35)',
             transition: 'box-shadow 0.38s ease',
           }}
@@ -194,6 +201,9 @@ function Book3D({
             background: spineColor,
           }} />
 
+          {banned && <BannedOverlay />}
+          {isPublic && !banned && <PublicDomainOverlay />}
+
           {isDropTarget && draggingBook && (draggingBook.id as string) !== (book.id as string) && (
             <>
               <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: hashColor(draggingBook.title) }} />
@@ -241,11 +251,9 @@ function Book3D({
         </div>
       </div>
 
-      {/* Badges — outside 3D context so tooltips aren't clipped */}
-      {banned && <BannedBadge title={book.title} />}
-      {showOpenAccess && accessInfo?.access === 'public' && (
-        <OpenAccessBadge info={accessInfo} isbn={book.isbn} />
-      )}
+      {/* Outside 3D context — tooltip + badge */}
+      {banned && <BannedTooltip title={book.title} show={hovered} />}
+      {isPublic && accessInfo && <OpenAccessBadge info={accessInfo} isbn={book.isbn} />}
 
       {/* ── Shelf shadow (lives outside 3-D context) ── */}
       <div style={{

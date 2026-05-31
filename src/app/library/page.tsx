@@ -373,6 +373,7 @@ export default function LibraryPage() {
               <MosaicGrid
                 shelves={displayShelves}
                 showBanned={showBanned}
+                showOpenAccess={showOpenAccess}
                 onBookSelect={handleBookSelect}
                 draggingId={draggingBookId}
                 onDragStart={(id) => setDraggingBookId(id)}
@@ -384,6 +385,7 @@ export default function LibraryPage() {
               <ScatterDrift
                 shelves={displayShelves}
                 showBanned={showBanned}
+                showOpenAccess={showOpenAccess}
                 onBookSelect={handleBookSelect}
               />
             )}
