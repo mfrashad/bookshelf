@@ -13,6 +13,8 @@ import {
 
 interface ScatterDriftProps {
   shelves: Shelf[];
+  radius?: number;
+  spacing?: number;
   showBanned?: boolean;
   showOpenAccess?: boolean;
   onBookSelect?: (book: Book) => void;
@@ -20,10 +22,10 @@ interface ScatterDriftProps {
 }
 
 const CANVAS_W = 620;
-const CANVAS_H = 700;
 const CX = CANVAS_W / 2;
 const PAD = 30;
-const R = CANVAS_W * 0.36;          // cylinder radius (x swing)
+const DEFAULT_RADIUS  = 220;
+const DEFAULT_SPACING = 20;
 const AUTO_SPIN = 0.006;             // radians per frame at 60fps
 
 function srnd(i: number, salt: number) {
@@ -40,7 +42,7 @@ interface BookConst {
   rotJitter: number;  // seed for tilt direction/magnitude
 }
 
-function buildConstants(count: number): BookConst[] {
+function buildConstants(count: number, canvasH: number): BookConst[] {
   // ~2 turns for a tight visible helix curve; more turns → more horizontal gap
   const turns = Math.max(1, Math.round(count / 22));
   return Array.from({ length: count }, (_, i) => {
@@ -48,7 +50,7 @@ function buildConstants(count: number): BookConst[] {
     return {
       t,
       baseAngle: t * turns * 2 * Math.PI,
-      y: PAD + t * (CANVAS_H - PAD * 2) + srnd(i, 1) * 10,
+      y: PAD + t * (canvasH - PAD * 2) + srnd(i, 1) * 10,
       jx: srnd(i, 0) * 18,
       rotJitter: srnd(i, 2),
     };
@@ -56,12 +58,12 @@ function buildConstants(count: number): BookConst[] {
 }
 
 // Compute one book's visual props from its angle (rotation + baseAngle)
-function bookProps(angle: number, rotJitter: number) {
+function bookProps(angle: number, rotJitter: number, radius: number) {
   const cosA = Math.cos(angle);
   const sinA = Math.sin(angle);
   const depthT = (sinA + 1) / 2;                 // 0 (back) → 1 (front)
   return {
-    x:     CX + R * cosA,
+    x:     CX + radius * cosA,
     depth: sinA,
     w:     34 + depthT * 20,                      // 34–54px
     h:     (34 + depthT * 20) * 1.32,
@@ -73,14 +75,15 @@ function bookProps(angle: number, rotJitter: number) {
 
 // Static snapshot for export (no animation)
 function StaticView({ allBooks }: { allBooks: Book[] }) {
-  const consts = useMemo(() => buildConstants(allBooks.length), [allBooks.length]);
+  const canvasH = PAD * 2 + DEFAULT_SPACING * Math.max(1, allBooks.length - 1);
+  const consts = useMemo(() => buildConstants(allBooks.length, canvasH), [allBooks.length, canvasH]);
   const startRot = Math.PI;
 
   return (
-    <div style={{ position: 'relative', width: CANVAS_W, height: CANVAS_H }}>
+    <div style={{ position: 'relative', width: CANVAS_W, height: canvasH }}>
       {allBooks.map((book, i) => {
         const c = consts[i];
-        const { x, w, h, alpha, rot, z } = bookProps(startRot + c.baseAngle, c.rotJitter);
+        const { x, w, h, alpha, rot, z } = bookProps(startRot + c.baseAngle, c.rotJitter, DEFAULT_RADIUS);
         const fallbackBg = hashColor(book.title);
         const fallbackFg = spineTextColor(fallbackBg);
         return (
@@ -193,7 +196,7 @@ function BookFace({ book, w, fallbackBg, fallbackFg }: { book: Book; w: number; 
   );
 }
 
-export function ScatterDrift({ shelves, showBanned = false, showOpenAccess = true, onBookSelect, exportMode = false }: ScatterDriftProps) {
+export function ScatterDrift({ shelves, radius = DEFAULT_RADIUS, spacing = DEFAULT_SPACING, showBanned = false, showOpenAccess = true, onBookSelect, exportMode = false }: ScatterDriftProps) {
   const allBooks = useMemo(() =>
     [...shelves]
       .filter((s) => s.books.length > 0)
@@ -202,15 +205,18 @@ export function ScatterDrift({ shelves, showBanned = false, showOpenAccess = tru
     [shelves]
   );
 
-  const consts     = useMemo(() => buildConstants(allBooks.length), [allBooks.length]);
+  const canvasH    = PAD * 2 + spacing * Math.max(1, allBooks.length - 1);
+  const consts     = useMemo(() => buildConstants(allBooks.length, canvasH), [allBooks.length, canvasH]);
   const openAccess = useOpenAccess(exportMode ? [] : allBooks);
 
   // DOM refs — updated directly each frame, bypassing React renders
-  const bookRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const bookRefs  = useRef<(HTMLDivElement | null)[]>([]);
+  const radiusRef = useRef(radius);
+  useEffect(() => { radiusRef.current = radius; }, [radius]);
 
   // Animation state (all mutable refs, no state)
-  const rotRef        = useRef(Math.PI);   // current rotation angle
-  const velRef        = useRef(0);          // current angular velocity (radians/frame)
+  const rotRef        = useRef(Math.PI);
+  const velRef        = useRef(0);
   const dragging      = useRef(false);
   const lastX         = useRef(0);
   const rafRef        = useRef<number>(0);
@@ -220,17 +226,15 @@ export function ScatterDrift({ shelves, showBanned = false, showOpenAccess = tru
 
     function frame() {
       if (!dragging.current) {
-        // Smoothly approach auto-spin speed from whatever velocity we have
         velRef.current += (AUTO_SPIN - velRef.current) * 0.04;
       }
       rotRef.current += velRef.current;
 
-      const n = allBooks.length;
       consts.forEach((c, i) => {
         const el = bookRefs.current[i];
         if (!el) return;
         const angle = rotRef.current + c.baseAngle;
-        const { x, w, h, alpha, rot, z } = bookProps(angle, c.rotJitter);
+        const { x, w, h, alpha, rot, z } = bookProps(angle, c.rotJitter, radiusRef.current);
         const px = x + c.jx;
 
         el.style.left    = `${px}px`;
@@ -302,13 +306,13 @@ export function ScatterDrift({ shelves, showBanned = false, showOpenAccess = tru
         drag to rotate
       </div>
 
-      <div style={{ position: 'relative', width: CANVAS_W, height: CANVAS_H }}>
+      <div style={{ position: 'relative', width: CANVAS_W, height: canvasH }}>
         {allBooks.map((book, i) => {
           const fallbackBg = hashColor(book.title);
           const fallbackFg = spineTextColor(fallbackBg);
           // Initial props (frame loop will overwrite instantly)
           const c = consts[i];
-          const init = bookProps(rotRef.current + c.baseAngle, c.rotJitter);
+          const init = bookProps(rotRef.current + c.baseAngle, c.rotJitter, radius);
           return (
             <ScatterCard
               key={book.id as string}

@@ -37,6 +37,8 @@ export default function LibraryPage() {
   const [showBanned, setShowBanned] = useState(false);
   const [showOpenAccess, setShowOpenAccess] = useState(true);
   const [perRow, setPerRow] = useState(7);
+  const [helixRadius, setHelixRadius] = useState(220);
+  const [helixSpacing, setHelixSpacing] = useState(20);
   const [hiddenBookIds, setHiddenBookIds] = useState<string[]>([]);
   const [bookOrder, setBookOrder] = useState<string[]>([]);
   const [draggingBookId, setDraggingBookId] = useState<string | null>(null);
@@ -49,6 +51,10 @@ export default function LibraryPage() {
     setShowOpenAccess(sessionStorage.getItem('book-poster:show-open-access') !== '0');
     const savedPerRow = sessionStorage.getItem('book-poster:per-row');
     if (savedPerRow) setPerRow(Number(savedPerRow));
+    const savedRadius = sessionStorage.getItem('book-poster:helix-radius');
+    if (savedRadius) setHelixRadius(Number(savedRadius));
+    const savedSpacing = sessionStorage.getItem('book-poster:helix-spacing');
+    if (savedSpacing) setHelixSpacing(Number(savedSpacing));
     try {
       const hidden = localStorage.getItem('book-poster:hidden-books');
       if (hidden) setHiddenBookIds(JSON.parse(hidden));
@@ -268,6 +274,44 @@ export default function LibraryPage() {
               <span style={{ minWidth: 16, textAlign: 'right', fontWeight: 700 }}>{perRow}</span>
             </label>
           )}
+          {vizMode === 'scatter' && (
+            <>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, userSelect: 'none', fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#333' }}>
+                Radius
+                <input
+                  type="range"
+                  min={60}
+                  max={300}
+                  step={5}
+                  value={helixRadius}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    setHelixRadius(v);
+                    sessionStorage.setItem('book-poster:helix-radius', String(v));
+                  }}
+                  style={{ width: 90, accentColor: '#000', cursor: 'pointer' }}
+                />
+                <span style={{ minWidth: 28, textAlign: 'right', fontWeight: 700 }}>{helixRadius}</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, userSelect: 'none', fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#333' }}>
+                Spacing
+                <input
+                  type="range"
+                  min={6}
+                  max={60}
+                  step={1}
+                  value={helixSpacing}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    setHelixSpacing(v);
+                    sessionStorage.setItem('book-poster:helix-spacing', String(v));
+                  }}
+                  style={{ width: 90, accentColor: '#000', cursor: 'pointer' }}
+                />
+                <span style={{ minWidth: 28, textAlign: 'right', fontWeight: 700 }}>{helixSpacing}</span>
+              </label>
+            </>
+          )}
           {hiddenBookIds.length > 0 && (
             <span style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#888' }}>
               {hiddenBookIds.length} book{hiddenBookIds.length !== 1 ? 's' : ''} hidden
@@ -411,6 +455,8 @@ export default function LibraryPage() {
             {vizMode === 'scatter' && (
               <ScatterDrift
                 shelves={displayShelves}
+                radius={helixRadius}
+                spacing={helixSpacing}
                 showBanned={showBanned}
                 showOpenAccess={showOpenAccess}
                 onBookSelect={handleBookSelect}
