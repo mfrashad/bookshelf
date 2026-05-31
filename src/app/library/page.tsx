@@ -126,28 +126,6 @@ export default function LibraryPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Guest banner */}
-      {showGuestBanner && (
-        <div
-          data-testid="guest-banner"
-          style={{ background: '#6ff5b6', borderBottom: '2px solid #000', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}
-        >
-          <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#000', lineHeight: 1.5 }}>
-            Your library is saved in this browser only.{' '}
-            <SignInButton mode="modal">
-              <button style={{ fontWeight: 700, color: '#000', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontFamily: 'var(--font-geist, sans-serif)' }}>Sign in</button>
-            </SignInButton>
-            {' '}to keep it across devices.
-          </p>
-          <button
-            onClick={() => setDismissedBanner(true)}
-            style={{ color: '#333', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0, fontSize: 14 }}
-            aria-label="Dismiss"
-          >
-            ✕
-          </button>
-        </div>
-      )}
 
       {/* Literacy modal — fixed overlay, position in DOM is irrelevant */}
       {loaded && <LiteracyBanner bookCount={bookCount} />}
@@ -239,7 +217,7 @@ export default function LibraryPage() {
         </div>
       </header>
 
-      {/* Banned books toolbar strip */}
+      {/* Toolbar strip */}
       {!isEmpty && (
         <div style={{ borderBottom: '2px solid #000', background: '#fff', padding: '6px 24px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', userSelect: 'none', fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#333' }}>
@@ -273,6 +251,18 @@ export default function LibraryPage() {
             >
               Reset view
             </button>
+          )}
+          {/* Sign-in nudge — right-aligned, only for guests */}
+          {showGuestBanner && (
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#888' }}>
+              Saved in browser only ·{' '}
+              <SignInButton mode="modal">
+                <button style={{ fontWeight: 700, color: '#000', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'var(--font-geist, sans-serif)', padding: 0 }}>
+                  Sign in
+                </button>
+              </SignInButton>
+              {' '}to sync
+            </div>
           )}
         </div>
       )}
