@@ -256,23 +256,33 @@ export default function LibraryPage() {
             Show public domain badges 📖
           </label>
           {(['grid', 'wall', 'mosaic'] as const).includes(vizMode as 'grid' | 'wall' | 'mosaic') && (
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, userSelect: 'none', fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#333' }}>
-              Per row
-              <input
-                type="range"
-                min={3}
-                max={15}
-                step={1}
-                value={perRow}
-                onChange={(e) => {
-                  const v = Number(e.target.value);
-                  setPerRow(v);
-                  sessionStorage.setItem('book-poster:per-row', String(v));
-                }}
-                style={{ width: 90, accentColor: '#000', cursor: 'pointer' }}
-              />
-              <span style={{ minWidth: 16, textAlign: 'right', fontWeight: 700 }}>{perRow}</span>
-            </label>
+            <>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, userSelect: 'none', fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#333' }}>
+                Per row
+                <input
+                  type="range"
+                  min={3}
+                  max={15}
+                  step={1}
+                  value={perRow}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    setPerRow(v);
+                    sessionStorage.setItem('book-poster:per-row', String(v));
+                  }}
+                  style={{ width: 90, accentColor: '#000', cursor: 'pointer' }}
+                />
+                <span style={{ minWidth: 16, textAlign: 'right', fontWeight: 700 }}>{perRow}</span>
+              </label>
+              {perRow !== 7 && (
+                <button
+                  onClick={() => { setPerRow(7); sessionStorage.removeItem('book-poster:per-row'); }}
+                  style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#888', background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', textDecoration: 'underline' }}
+                >
+                  Reset
+                </button>
+              )}
+            </>
           )}
           {vizMode === 'scatter' && (
             <>
@@ -310,6 +320,18 @@ export default function LibraryPage() {
                 />
                 <span style={{ minWidth: 28, textAlign: 'right', fontWeight: 700 }}>{helixSpacing}</span>
               </label>
+              {(helixRadius !== 220 || helixSpacing !== 20) && (
+                <button
+                  onClick={() => {
+                    setHelixRadius(220); setHelixSpacing(20);
+                    sessionStorage.removeItem('book-poster:helix-radius');
+                    sessionStorage.removeItem('book-poster:helix-spacing');
+                  }}
+                  style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#888', background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', textDecoration: 'underline' }}
+                >
+                  Reset
+                </button>
+              )}
             </>
           )}
           {hiddenBookIds.length > 0 && (
