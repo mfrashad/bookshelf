@@ -221,12 +221,11 @@ export function ScatterDrift({ shelves, radius = DEFAULT_RADIUS, spacing = DEFAU
     };
     let idx = 0;
     return sorted.map((shelf) => {
-      const startIdx = idx;
-      const endIdx   = idx + shelf.books.length - 1;
+      const startIdx  = idx;
       idx += shelf.books.length;
-      const midY      = (nomY(startIdx) + nomY(endIdx)) / 2;
+      const startY    = nomY(startIdx);
       const boundaryY = startIdx === 0 ? null : (nomY(startIdx - 1) + nomY(startIdx)) / 2;
-      return { year: shelf.title, midY, boundaryY };
+      return { year: shelf.title, startY, boundaryY };
     });
   }, [shelves, allBooks.length, canvasH]);
 
@@ -328,45 +327,31 @@ export function ScatterDrift({ shelves, radius = DEFAULT_RADIUS, spacing = DEFAU
       </div>
 
       <div style={{ position: 'relative', width: CANVAS_W, height: canvasH }}>
-        {/* Year bands — rendered before books so they sit behind */}
-        {yearMarkers.map(({ year, midY, boundaryY }) => (
-          <div key={year} style={{ position: 'absolute', left: 0, right: 0, top: 0, pointerEvents: 'none' }}>
-            {/* Dividing line between this year and the previous */}
-            {boundaryY !== null && (
-              <div style={{
-                position: 'absolute',
-                top: boundaryY,
-                left: 24,
-                right: 24,
-                height: 1,
-                background: 'rgba(0,0,0,0.10)',
-                zIndex: 1,
-              }} />
-            )}
-            {/* Year label at the midpoint of this year's range */}
-            <div style={{
+        {/* Year labels — at the start of each year's range */}
+        {yearMarkers.map(({ year, boundaryY, startY }) => (
+          <div
+            key={year}
+            style={{
               position: 'absolute',
-              top: midY,
+              top: boundaryY ?? startY,
               left: 0,
               transform: 'translateY(-50%)',
               zIndex: 2,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
+              pointerEvents: 'none',
+            }}
+          >
+            <div style={{
+              background: 'rgba(0,0,0,0.06)',
+              borderRadius: '0 6px 6px 0',
+              padding: '2px 8px 2px 6px',
+              fontSize: 10,
+              fontWeight: 700,
+              color: 'rgba(0,0,0,0.28)',
+              letterSpacing: '0.04em',
+              fontFamily: 'var(--font-display, sans-serif)',
+              userSelect: 'none',
             }}>
-              <div style={{
-                background: 'rgba(0,0,0,0.06)',
-                borderRadius: '0 6px 6px 0',
-                padding: '2px 8px 2px 6px',
-                fontSize: 10,
-                fontWeight: 700,
-                color: 'rgba(0,0,0,0.28)',
-                letterSpacing: '0.04em',
-                fontFamily: 'var(--font-display, sans-serif)',
-                userSelect: 'none',
-              }}>
-                {year}
-              </div>
+              {year}
             </div>
           </div>
         ))}
