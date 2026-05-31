@@ -341,8 +341,6 @@ export function ScatterDrift({ shelves, radius = DEFAULT_RADIUS, spacing = DEFAU
             }}
           >
             <div style={{
-              background: 'rgba(0,0,0,0.06)',
-              borderRadius: '0 6px 6px 0',
               padding: '2px 8px 2px 6px',
               fontSize: 10,
               fontWeight: 700,
