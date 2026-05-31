@@ -201,7 +201,7 @@ export function CoverGrid({ shelves, columns = 7, exportMode = false, showBanned
             </div>
           )}
           <div
-            style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, ${COVER_W}px)`, gap: 8 }}
+            style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, ${COVER_W}px)`, gap: 8, width: 'fit-content', margin: '0 auto' }}
             onDragLeave={(e) => {
               if (!exportMode && !e.currentTarget.contains(e.relatedTarget as Node)) setDragOverId(null);
             }}
