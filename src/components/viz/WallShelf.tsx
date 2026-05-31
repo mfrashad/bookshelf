@@ -194,10 +194,6 @@ function Book3D({
             background: spineColor,
           }} />
 
-          {banned && <BannedBadge title={book.title} />}
-          {showOpenAccess && accessInfo?.access === 'public' && (
-            <OpenAccessBadge info={accessInfo} isbn={book.isbn} />
-          )}
           {isDropTarget && draggingBook && (draggingBook.id as string) !== (book.id as string) && (
             <>
               <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: hashColor(draggingBook.title) }} />
@@ -244,6 +240,12 @@ function Book3D({
           }} />
         </div>
       </div>
+
+      {/* Badges — outside 3D context so tooltips aren't clipped */}
+      {banned && <BannedBadge title={book.title} />}
+      {showOpenAccess && accessInfo?.access === 'public' && (
+        <OpenAccessBadge info={accessInfo} isbn={book.isbn} />
+      )}
 
       {/* ── Shelf shadow (lives outside 3-D context) ── */}
       <div style={{

@@ -130,88 +130,94 @@ export function CoverGrid({ shelves, exportMode = false, showBanned = false, sho
                   style={{
                     width: COVER_W,
                     height: COVER_H,
-                    borderRadius: 4,
-                    overflow: 'hidden',
                     flexShrink: 0,
-                    boxShadow: banned
-                      ? '0 0 0 2px #ce500a, 2px 3px 8px rgba(0,0,0,0.18)'
-                      : '2px 3px 8px rgba(0,0,0,0.18)',
                     position: 'relative',
                     opacity: draggingId === (book.id as string) ? 0.35 : 1,
                     cursor: exportMode ? 'default' : 'grab',
                     transition: 'opacity 0.15s',
                   }}
                 >
-                  {/* Placeholder always rendered; img sits on top and hides it when loaded */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: color,
-                      color: textColor,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '8px 6px',
-                      gap: 4,
-                    }}
-                  >
-                    <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1 }}>{initial}</span>
-                    <span
+                  {/* Visual card — overflow:hidden here so badges can escape */}
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    boxShadow: banned
+                      ? '0 0 0 2px #ce500a, 2px 3px 8px rgba(0,0,0,0.18)'
+                      : '2px 3px 8px rgba(0,0,0,0.18)',
+                  }}>
+                    {/* Placeholder always rendered; img sits on top and hides it when loaded */}
+                    <div
                       style={{
-                        fontSize: 9,
-                        fontWeight: 500,
-                        opacity: 0.8,
-                        textAlign: 'center',
-                        lineHeight: 1.3,
-                        overflow: 'hidden',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical' as const,
-                        wordBreak: 'break-word' as const,
+                        position: 'absolute',
+                        inset: 0,
+                        background: color,
+                        color: textColor,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '8px 6px',
+                        gap: 4,
                       }}
                     >
-                      {book.title}
-                    </span>
+                      <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1 }}>{initial}</span>
+                      <span
+                        style={{
+                          fontSize: 9,
+                          fontWeight: 500,
+                          opacity: 0.8,
+                          textAlign: 'center',
+                          lineHeight: 1.3,
+                          overflow: 'hidden',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical' as const,
+                          wordBreak: 'break-word' as const,
+                        }}
+                      >
+                        {book.title}
+                      </span>
+                    </div>
+                    {book.coverProxiedUrl && (
+                      <img
+                        src={book.coverProxiedUrl}
+                        alt={book.title}
+                        crossOrigin="anonymous"
+                        loading={exportMode ? 'eager' : 'lazy'}
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
+                    )}
+                    {dragOverId === (book.id as string) && draggingBook && (draggingBook.id as string) !== (book.id as string) && (
+                      <>
+                        <div style={{
+                          position: 'absolute', inset: 0, zIndex: 20, pointerEvents: 'none',
+                          background: hashColor(draggingBook.title),
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                          padding: '8px 6px', gap: 4,
+                        }}>
+                          <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, color: spineTextColor(hashColor(draggingBook.title)) }}>
+                            {draggingBook.title.trim()[0]?.toUpperCase() ?? '?'}
+                          </span>
+                        </div>
+                        {draggingBook.coverProxiedUrl && (
+                          <img src={draggingBook.coverProxiedUrl} alt="" style={{
+                            position: 'absolute', inset: 0, width: '100%', height: '100%',
+                            objectFit: 'cover', zIndex: 21, pointerEvents: 'none',
+                          }} />
+                        )}
+                        <div style={{
+                          position: 'absolute', inset: 0, zIndex: 22, pointerEvents: 'none',
+                          border: '2px dashed rgba(255,255,255,0.9)', borderRadius: 4,
+                        }} />
+                      </>
+                    )}
                   </div>
+                  {/* Badges outside overflow:hidden so tooltips aren't clipped */}
                   {banned && <BannedBadge title={book.title} />}
                   {showOpenAccess && access?.access === 'public' && (
                     <OpenAccessBadge info={access} isbn={book.isbn} />
-                  )}
-                  {book.coverProxiedUrl && (
-                    <img
-                      src={book.coverProxiedUrl}
-                      alt={book.title}
-                      crossOrigin="anonymous"
-                      loading={exportMode ? 'eager' : 'lazy'}
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                    />
-                  )}
-                  {dragOverId === (book.id as string) && draggingBook && (draggingBook.id as string) !== (book.id as string) && (
-                    <>
-                      <div style={{
-                        position: 'absolute', inset: 0, zIndex: 20, pointerEvents: 'none',
-                        background: hashColor(draggingBook.title),
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        padding: '8px 6px', gap: 4,
-                      }}>
-                        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, color: spineTextColor(hashColor(draggingBook.title)) }}>
-                          {draggingBook.title.trim()[0]?.toUpperCase() ?? '?'}
-                        </span>
-                      </div>
-                      {draggingBook.coverProxiedUrl && (
-                        <img src={draggingBook.coverProxiedUrl} alt="" style={{
-                          position: 'absolute', inset: 0, width: '100%', height: '100%',
-                          objectFit: 'cover', zIndex: 21, pointerEvents: 'none',
-                        }} />
-                      )}
-                      <div style={{
-                        position: 'absolute', inset: 0, zIndex: 22, pointerEvents: 'none',
-                        border: '2px dashed rgba(255,255,255,0.9)', borderRadius: 4,
-                      }} />
-                    </>
                   )}
                 </div>
               );
