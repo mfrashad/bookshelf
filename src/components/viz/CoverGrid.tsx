@@ -5,6 +5,7 @@ import type { Shelf } from '@/lib/types';
 import { hashColor, spineTextColor } from '@/lib/spine';
 import { isBanned } from '@/data/banned-books';
 import { useOpenAccess, getAccessInfo } from '@/hooks/useOpenAccess';
+import { BannedBadge, OpenAccessBadge } from './BookBadges';
 
 const COVER_W = 84;
 const COVER_H = 126; // 2:3 ratio
@@ -13,6 +14,7 @@ interface CoverGridProps {
   shelves: Shelf[];
   exportMode?: boolean;
   showBanned?: boolean;
+  showOpenAccess?: boolean;
   groupByYear?: boolean;
   draggingId?: string | null;
   onReorderBooks?: (draggedId: string, targetId: string) => void;
@@ -20,7 +22,7 @@ interface CoverGridProps {
   onDragEnd?: () => void;
 }
 
-export function CoverGrid({ shelves, exportMode = false, showBanned = false, groupByYear: groupByYearProp = false, draggingId, onReorderBooks, onDragStart, onDragEnd }: CoverGridProps) {
+export function CoverGrid({ shelves, exportMode = false, showBanned = false, showOpenAccess = true, groupByYear: groupByYearProp = false, draggingId, onReorderBooks, onDragStart, onDragEnd }: CoverGridProps) {
   const [groupByYear, setGroupByYear] = useState(groupByYearProp);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
@@ -173,42 +175,9 @@ export function CoverGrid({ shelves, exportMode = false, showBanned = false, gro
                       {book.title}
                     </span>
                   </div>
-                  {/* Banned badge */}
-                  {banned && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: 3,
-                        right: 3,
-                        fontSize: 12,
-                        lineHeight: 1,
-                        zIndex: 10,
-                        background: 'rgba(255,255,255,0.85)',
-                        borderRadius: '50%',
-                        padding: 2,
-                      }}
-                    >
-                      🚫
-                    </div>
-                  )}
-                  {/* Open access badge */}
-                  {access?.access === 'public' && (
-                    <a
-                      href={access.url ?? `https://openlibrary.org/search?isbn=${book.isbn}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Free to read on Open Library"
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        position: 'absolute', bottom: 4, left: 4, zIndex: 10,
-                        background: '#16a34a', color: '#fff',
-                        fontSize: 7, fontWeight: 700, letterSpacing: '0.04em',
-                        padding: '2px 4px', borderRadius: 3, lineHeight: 1,
-                        textDecoration: 'none',
-                      }}
-                    >
-                      FREE
-                    </a>
+                  {banned && <BannedBadge title={book.title} />}
+                  {showOpenAccess && access?.access === 'public' && (
+                    <OpenAccessBadge info={access} isbn={book.isbn} />
                   )}
                   {book.coverProxiedUrl && (
                     <img

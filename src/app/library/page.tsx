@@ -34,6 +34,7 @@ export default function LibraryPage() {
   const [selectedBook, setSelectedBook] = useState<StoredBook | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [showBanned, setShowBanned] = useState(false);
+  const [showOpenAccess, setShowOpenAccess] = useState(true);
   const [hiddenBookIds, setHiddenBookIds] = useState<string[]>([]);
   const [bookOrder, setBookOrder] = useState<string[]>([]);
   const [draggingBookId, setDraggingBookId] = useState<string | null>(null);
@@ -43,6 +44,7 @@ export default function LibraryPage() {
   // Restore state from storage
   useEffect(() => {
     setShowBanned(sessionStorage.getItem('book-poster:show-banned') === '1');
+    setShowOpenAccess(sessionStorage.getItem('book-poster:show-open-access') !== '0');
     try {
       const hidden = localStorage.getItem('book-poster:hidden-books');
       if (hidden) setHiddenBookIds(JSON.parse(hidden));
@@ -55,6 +57,12 @@ export default function LibraryPage() {
     setShowBanned(on);
     if (on) sessionStorage.setItem('book-poster:show-banned', '1');
     else sessionStorage.removeItem('book-poster:show-banned');
+  }
+
+  function toggleOpenAccess(on: boolean) {
+    setShowOpenAccess(on);
+    if (!on) sessionStorage.setItem('book-poster:show-open-access', '0');
+    else sessionStorage.removeItem('book-poster:show-open-access');
   }
 
   const displayShelves = useMemo(() => {
@@ -244,6 +252,15 @@ export default function LibraryPage() {
             />
             Show challenged books 🔍
           </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', userSelect: 'none', fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#333' }}>
+            <input
+              type="checkbox"
+              checked={showOpenAccess}
+              onChange={(e) => toggleOpenAccess(e.target.checked)}
+              style={{ accentColor: '#000' }}
+            />
+            Show public domain badges 📖
+          </label>
           {hiddenBookIds.length > 0 && (
             <span style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#888' }}>
               {hiddenBookIds.length} book{hiddenBookIds.length !== 1 ? 's' : ''} hidden
@@ -300,6 +317,7 @@ export default function LibraryPage() {
               <CoverGrid
                 shelves={displayShelves}
                 showBanned={showBanned}
+                showOpenAccess={showOpenAccess}
                 draggingId={draggingBookId}
                 onDragStart={(id) => setDraggingBookId(id)}
                 onDragEnd={() => setDraggingBookId(null)}
@@ -310,6 +328,7 @@ export default function LibraryPage() {
               <WallShelf
                 shelves={displayShelves}
                 showBanned={showBanned}
+                showOpenAccess={showOpenAccess}
                 onBookSelect={handleBookSelect}
                 draggingId={draggingBookId}
                 onDragStart={(id) => setDraggingBookId(id)}

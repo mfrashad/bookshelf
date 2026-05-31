@@ -5,6 +5,7 @@ import type { Book, Shelf } from '@/lib/types';
 import { hashColor, spineTextColor, cleanTitle } from '@/lib/spine';
 import { isBanned } from '@/data/banned-books';
 import { useOpenAccess, getAccessInfo, type OpenAccessInfo } from '@/hooks/useOpenAccess';
+import { BannedBadge, OpenAccessBadge } from './BookBadges';
 
 // ─── Layout constants ─────────────────────────────────────────────────────────
 const COVER_W    = 96;
@@ -28,6 +29,7 @@ const BRACKET = '#6a6a72';
 function Book3D({
   book,
   showBanned,
+  showOpenAccess,
   accessInfo,
   onBookSelect,
   draggingId,
@@ -38,6 +40,7 @@ function Book3D({
 }: {
   book: Book;
   showBanned: boolean;
+  showOpenAccess: boolean;
   accessInfo?: OpenAccessInfo | null;
   onBookSelect?: (b: Book) => void;
   draggingId?: string | null;
@@ -191,30 +194,9 @@ function Book3D({
             background: spineColor,
           }} />
 
-          {/* Banned badge */}
-          {banned && (
-            <div style={{ position: 'absolute', top: 4, right: 4, fontSize: 11, zIndex: 10, background: 'rgba(255,255,255,0.9)', borderRadius: '50%', padding: 2 }}>
-              🚫
-            </div>
-          )}
-          {/* Open access badge */}
-          {accessInfo?.access === 'public' && (
-            <a
-              href={accessInfo.url ?? `https://openlibrary.org/search?isbn=${book.isbn}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Free to read on Open Library"
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                position: 'absolute', bottom: 5, left: 5, zIndex: 10,
-                background: '#16a34a', color: '#fff',
-                fontSize: 7, fontWeight: 700, letterSpacing: '0.04em',
-                padding: '2px 4px', borderRadius: 3, lineHeight: 1,
-                textDecoration: 'none',
-              }}
-            >
-              FREE
-            </a>
+          {banned && <BannedBadge title={book.title} />}
+          {showOpenAccess && accessInfo?.access === 'public' && (
+            <OpenAccessBadge info={accessInfo} isbn={book.isbn} />
           )}
           {isDropTarget && draggingBook && (draggingBook.id as string) !== (book.id as string) && (
             <>
@@ -314,6 +296,7 @@ function Bracket({ side }: { side: 'left' | 'right' }) {
 function ShelfRow({
   books,
   showBanned,
+  showOpenAccess,
   openAccess,
   onBookSelect,
   draggingId,
@@ -324,6 +307,7 @@ function ShelfRow({
 }: {
   books: Book[];
   showBanned: boolean;
+  showOpenAccess: boolean;
   openAccess: Map<string, OpenAccessInfo>;
   onBookSelect?: (b: Book) => void;
   draggingId?: string | null;
@@ -354,6 +338,7 @@ function ShelfRow({
             key={book.id as string}
             book={book}
             showBanned={showBanned}
+            showOpenAccess={showOpenAccess}
             accessInfo={getAccessInfo(openAccess, book)}
             onBookSelect={onBookSelect}
             draggingId={draggingId}
@@ -419,6 +404,7 @@ function ShelfRow({
 interface WallShelfProps {
   shelves: Shelf[];
   showBanned?: boolean;
+  showOpenAccess?: boolean;
   onBookSelect?: (book: Book) => void;
   draggingId?: string | null;
   onReorderBooks?: (draggedId: string, targetId: string) => void;
@@ -426,7 +412,7 @@ interface WallShelfProps {
   onDragEnd?: () => void;
 }
 
-export function WallShelf({ shelves, showBanned = false, onBookSelect, draggingId, onReorderBooks, onDragStart, onDragEnd }: WallShelfProps) {
+export function WallShelf({ shelves, showBanned = false, showOpenAccess = true, onBookSelect, draggingId, onReorderBooks, onDragStart, onDragEnd }: WallShelfProps) {
   const allBooks = useMemo(() =>
     [...shelves]
       .filter((s) => s.books.length > 0)
@@ -462,6 +448,7 @@ export function WallShelf({ shelves, showBanned = false, onBookSelect, draggingI
           key={i}
           books={rowBooks}
           showBanned={showBanned}
+          showOpenAccess={showOpenAccess}
           openAccess={openAccess}
           onBookSelect={onBookSelect}
           draggingId={draggingId}
