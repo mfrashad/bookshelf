@@ -152,7 +152,7 @@ export function ScatterDrift({ shelves, showBanned = false, onBookSelect, export
   const velRef        = useRef(0);          // current angular velocity (radians/frame)
   const dragging      = useRef(false);
   const lastX         = useRef(0);
-  const rafRef        = useRef<number>();
+  const rafRef        = useRef<number>(0);
 
   useEffect(() => {
     if (exportMode) return;
