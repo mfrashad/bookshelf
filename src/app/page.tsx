@@ -389,7 +389,7 @@ export default function LandingPage() {
           <div style={{ background: '#fff', border: '2px solid #000', padding: '36px', boxShadow: '5px 5px 0px #000', marginTop: 56 }}>
             <div style={{ marginBottom: 16 }}>
               <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer">
-                <BuildForPublicLogo height={32} />
+                <BuildForPublicLogo height={48} />
               </a>
             </div>
             <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 16, color: '#000', lineHeight: 1.7, marginBottom: 16 }}>

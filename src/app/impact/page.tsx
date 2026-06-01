@@ -218,7 +218,7 @@ export default function ImpactPage() {
           <div style={{ background: '#fff', border: '2px solid #000', padding: '32px', boxShadow: '5px 5px 0px #000' }}>
             <div style={{ marginBottom: 16 }}>
               <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer">
-                <BuildForPublicLogo height={30} />
+                <BuildForPublicLogo height={48} />
               </a>
             </div>
             <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 15, color: '#000', lineHeight: 1.7, marginBottom: 12 }}>

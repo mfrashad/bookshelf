@@ -607,7 +607,7 @@ export default function LibraryPage() {
       {/* Footer nav */}
       <footer style={{ borderTop: '2px solid #000', padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff' }}>
         <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
-          <BuildForPublicLogo height={22} />
+          <BuildForPublicLogo height={36} />
         </a>
         <div style={{ display: 'flex', gap: 20 }}>
           <Link href="/give" style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#333', textDecoration: 'underline' }}>Give books</Link>
