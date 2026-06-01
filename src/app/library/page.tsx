@@ -17,6 +17,7 @@ import { isBanned } from '@/data/banned-books';
 import type { AspectRatio, Book, VizMode } from '@/lib/types';
 import { ASPECT_RATIO_DIMS } from '@/lib/types';
 import type { StoredBook } from '@/lib/local-storage';
+import { encodeShelves } from '@/lib/embed';
 
 const VIZ_MODES: { id: VizMode; label: string; icon: string }[] = [
   { id: 'stack',   label: 'Stack Chart',  icon: '📊' },
@@ -29,6 +30,7 @@ const VIZ_MODES: { id: VizMode; label: string; icon: string }[] = [
 export default function LibraryPage() {
   const [vizMode, setVizMode] = useState<VizMode>('stack');
   const [showExport, setShowExport] = useState(false);
+  const [showEmbed, setShowEmbed] = useState(false);
   const [exportRatio, setExportRatio] = useState<AspectRatio>('square');
   const [dismissedBanner, setDismissedBanner] = useState(false);
   const [showAddBook, setShowAddBook] = useState(false);
@@ -214,12 +216,20 @@ export default function LibraryPage() {
             </div>
           )}
           {!isEmpty && (
-            <button
-              onClick={() => setShowExport(true)}
-              style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 13, border: '2px solid #000', padding: '4px 14px', background: '#000', color: '#fff200', cursor: 'pointer', boxShadow: '2px 2px 0px #666' }}
-            >
-              Export image
-            </button>
+            <>
+              <button
+                onClick={() => setShowEmbed(true)}
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, border: '2px solid #000', padding: '4px 12px', background: '#fff', color: '#000', cursor: 'pointer', boxShadow: '2px 2px 0px #000' }}
+              >
+                &lt;/&gt; Share
+              </button>
+              <button
+                onClick={() => setShowExport(true)}
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 13, border: '2px solid #000', padding: '4px 14px', background: '#000', color: '#fff200', cursor: 'pointer', boxShadow: '2px 2px 0px #666' }}
+              >
+                Export image
+              </button>
+            </>
           )}
           {isGuest ? (
             <SignInButton mode="modal">
@@ -503,6 +513,15 @@ export default function LibraryPage() {
       {/* Add book modal */}
       {showAddBook && (
         <BookFormModal onClose={() => setShowAddBook(false)} onSave={addBook} />
+      )}
+
+      {/* Share / Embed modal */}
+      {showEmbed && (
+        <ShareEmbedModal
+          shelves={displayShelves}
+          defaultViz={vizMode}
+          onClose={() => setShowEmbed(false)}
+        />
       )}
 
       {/* Export modal */}
@@ -875,6 +894,131 @@ function BookFormModal({ onClose, onSave, initialValues }: BookFormModalProps) {
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+// ─── Share / Embed modal ──────────────────────────────────────────────────────
+
+const VIZ_EMBED_MODES: { id: VizMode; label: string }[] = [
+  { id: 'stack',   label: 'Stack Chart' },
+  { id: 'grid',    label: 'Cover Grid' },
+  { id: 'wall',    label: 'Wall Shelf' },
+  { id: 'mosaic',  label: 'Mosaic' },
+  { id: 'scatter', label: 'Spiral Drift' },
+];
+
+function ShareEmbedModal({ shelves, defaultViz, onClose }: { shelves: import('@/lib/types').Shelf[]; defaultViz: VizMode; onClose: () => void }) {
+  const [embedViz, setEmbedViz] = useState<VizMode>(defaultViz);
+  const [copied, setCopied] = useState<'iframe' | 'api' | null>(null);
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bookshelf.app';
+  const data   = useMemo(() => encodeShelves(shelves, embedViz), [shelves, embedViz]);
+  const embedUrl  = `${origin}/embed?d=${data}&viz=${embedViz}`;
+  const apiUrl    = `${origin}/api/v1/books?d=${data}`;
+  const iframeCode = `<iframe src="${embedUrl}" width="660" height="700" frameborder="0" style="border:none;border-radius:8px;" allowfullscreen></iframe>`;
+
+  function copy(text: string, which: 'iframe' | 'api') {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(which);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  }
+
+  const codeStyle: React.CSSProperties = {
+    fontFamily: 'var(--font-geist, monospace)',
+    fontSize: 11,
+    background: '#f5f5f5',
+    border: '1px solid #ddd',
+    padding: '10px 12px',
+    borderRadius: 4,
+    wordBreak: 'break-all',
+    whiteSpace: 'pre-wrap',
+    color: '#333',
+    lineHeight: 1.5,
+    flex: 1,
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.55)' }}
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ width: '100%', maxWidth: 620, background: '#fff', border: '3px solid #000', display: 'flex', flexDirection: 'column' }}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #000', padding: '14px 24px' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18 }}>Share &amp; Embed</h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#666' }}>✕</button>
+        </div>
+
+        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Viz picker */}
+          <div>
+            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Visualization</p>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {VIZ_EMBED_MODES.map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setEmbedViz(m.id)}
+                  style={{
+                    fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12,
+                    border: '2px solid #000', padding: '3px 10px', cursor: 'pointer',
+                    background: embedViz === m.id ? '#000' : '#fff',
+                    color: embedViz === m.id ? '#fff200' : '#000',
+                  }}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Embed code */}
+          <div>
+            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Embed code</p>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <code style={codeStyle}>{iframeCode}</code>
+              <button
+                onClick={() => copy(iframeCode, 'iframe')}
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, border: '2px solid #000', padding: '6px 12px', cursor: 'pointer', background: copied === 'iframe' ? '#000' : '#fff', color: copied === 'iframe' ? '#fff200' : '#000', whiteSpace: 'nowrap', flexShrink: 0 }}
+              >
+                {copied === 'iframe' ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+          </div>
+
+          {/* API URL */}
+          <div>
+            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>JSON API</p>
+            <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#666', marginBottom: 8 }}>
+              Returns your library as JSON. Open to anyone — no authentication required.
+            </p>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <code style={codeStyle}>{apiUrl}</code>
+              <button
+                onClick={() => copy(apiUrl, 'api')}
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, border: '2px solid #000', padding: '6px 12px', cursor: 'pointer', background: copied === 'api' ? '#000' : '#fff', color: copied === 'api' ? '#fff200' : '#000', whiteSpace: 'nowrap', flexShrink: 0 }}
+              >
+                {copied === 'api' ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+          </div>
+
+          {/* Embed preview link */}
+          <a
+            href={embedUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 13, color: '#000', textDecoration: 'underline' }}
+          >
+            Preview embed →
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
