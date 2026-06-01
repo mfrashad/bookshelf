@@ -14,7 +14,7 @@ export function BuildForPublicLogo({ height = 28, className }: BuildForPublicLog
       width={width}
       height={height}
       className={className}
-      style={{ display: 'inline-block', verticalAlign: 'middle' }}
+      style={{ display: 'inline-block', verticalAlign: 'middle', background: '#fff' }}
     />
   );
 }
