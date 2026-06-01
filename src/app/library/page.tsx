@@ -11,6 +11,7 @@ import { ScatterDrift } from '@/components/viz/ScatterDrift';
 import { ExportSurface } from '@/components/export/ExportSurface';
 import { LiteracyBanner } from '@/components/social/LiteracyBanner';
 import { PledgeModal } from '@/components/social/PledgeModal';
+import { SignInNudgeModal } from '@/components/social/SignInNudgeModal';
 import { useLibrary } from '@/hooks/useLibrary';
 import { useOpenAccess, getAccessInfo } from '@/hooks/useOpenAccess';
 import { isBanned } from '@/data/banned-books';
@@ -500,6 +501,9 @@ export default function LibraryPage() {
 
       {/* Pledge modal */}
       {loaded && <PledgeModal bookCount={bookCount} />}
+
+      {/* Sign-in nudge — guests only, 8 s delay, once per session */}
+      {loaded && <SignInNudgeModal isGuest={isGuest} bookCount={bookCount} />}
 
       {/* Book detail panel */}
       {selectedBook && (
