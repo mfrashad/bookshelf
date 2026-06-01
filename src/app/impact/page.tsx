@@ -215,7 +215,7 @@ export default function ImpactPage() {
       {/* Attribution */}
       <div style={{ borderTop: '2px solid #eee', padding: '40px 24px' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <div style={{ background: '#94e8ff', border: '2px solid #000', padding: '32px', boxShadow: '5px 5px 0px #000' }}>
+          <div style={{ background: '#fff', border: '2px solid #000', padding: '32px', boxShadow: '5px 5px 0px #000' }}>
             <div style={{ marginBottom: 16 }}>
               <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer">
                 <BuildForPublicLogo height={30} />

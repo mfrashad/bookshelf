@@ -386,7 +386,7 @@ export default function LandingPage() {
           </div>
 
           {/* Attribution card */}
-          <div style={{ background: '#94e8ff', border: '2px solid #000', padding: '36px', boxShadow: '5px 5px 0px #000', marginTop: 56 }}>
+          <div style={{ background: '#fff', border: '2px solid #000', padding: '36px', boxShadow: '5px 5px 0px #000', marginTop: 56 }}>
             <div style={{ marginBottom: 16 }}>
               <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer">
                 <BuildForPublicLogo height={32} />
