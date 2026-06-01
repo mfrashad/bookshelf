@@ -19,6 +19,7 @@ import type { AspectRatio, Book, VizMode } from '@/lib/types';
 import { ASPECT_RATIO_DIMS } from '@/lib/types';
 import type { StoredBook } from '@/lib/local-storage';
 import { encodeShelves } from '@/lib/embed';
+import { BuildForPublicLogo } from '@/components/ui/BuildForPublicLogo';
 
 const VIZ_MODES: { id: VizMode; label: string; icon: string }[] = [
   { id: 'stack',   label: 'Stack Chart',  icon: '📊' },
@@ -605,9 +606,9 @@ export default function LibraryPage() {
 
       {/* Footer nav */}
       <footer style={{ borderTop: '2px solid #000', padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff' }}>
-        <span style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#666' }}>
-          Built for World Book Day · <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#000', textDecoration: 'underline' }}>buildforpublic.com</a>
-        </span>
+        <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
+          <BuildForPublicLogo height={22} />
+        </a>
         <div style={{ display: 'flex', gap: 20 }}>
           <Link href="/give" style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#333', textDecoration: 'underline' }}>Give books</Link>
           <Link href="/impact" style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#333', textDecoration: 'underline' }}>Our mission</Link>

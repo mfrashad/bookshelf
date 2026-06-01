@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { BuildForPublicLogo } from '@/components/ui/BuildForPublicLogo';
 
 export const metadata: Metadata = {
   title: 'Our Mission — Literacy for Everyone',
@@ -215,9 +216,11 @@ export default function ImpactPage() {
       <div style={{ borderTop: '2px solid #eee', padding: '40px 24px' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ background: '#94e8ff', border: '2px solid #000', padding: '32px', boxShadow: '5px 5px 0px #000' }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: '#000', marginBottom: 14 }}>
-              Part of Build for Public
-            </h3>
+            <div style={{ marginBottom: 16 }}>
+              <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer">
+                <BuildForPublicLogo height={30} />
+              </a>
+            </div>
             <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 15, color: '#000', lineHeight: 1.7, marginBottom: 12 }}>
               Bookshelf is an open-source project by{' '}
               <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#000', fontWeight: 700, textDecoration: 'underline' }}>

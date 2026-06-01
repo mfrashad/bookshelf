@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { BuildForPublicLogo } from '@/components/ui/BuildForPublicLogo';
 
 const FEATURES = [
   { icon: '📚', title: 'Import', bg: '#94e8ff',  desc: 'Connect Hardcover or upload a Goodreads CSV — your whole library in seconds.' },
@@ -386,9 +387,11 @@ export default function LandingPage() {
 
           {/* Attribution card */}
           <div style={{ background: '#94e8ff', border: '2px solid #000', padding: '36px', boxShadow: '5px 5px 0px #000', marginTop: 56 }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: '#000', marginBottom: 16 }}>
-              Part of Build for Public
-            </h3>
+            <div style={{ marginBottom: 16 }}>
+              <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer">
+                <BuildForPublicLogo height={32} />
+              </a>
+            </div>
             <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 16, color: '#000', lineHeight: 1.7, marginBottom: 16 }}>
               Bookshelf is an open-source project by{' '}
               <a href="https://buildforpublic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#000', fontWeight: 700, textDecoration: 'underline' }}>
