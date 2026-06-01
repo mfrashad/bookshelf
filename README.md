@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/preview-grid.png" alt="Bookshelf preview" width="720" />
+  <img src="public/build-for-public-logo.png" alt="Build for Public" height="40" />
 </p>
 
 <h1 align="center">Bookshelf</h1>
@@ -8,39 +8,47 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js 16" />
-  <a href="https://aiforgood.my"><img src="https://img.shields.io/badge/made%20with-AI%20for%20Good-94e8ff" alt="Made with AI for Good" /></a>
+  <a href="https://buildforpublic.com"><img src="https://img.shields.io/badge/made%20with-Build%20for%20Public-fff200?labelColor=000" alt="Made with Build for Public" /></a>
 </p>
 
 ---
 
-Bookshelf turns your reading library into a stunning, shareable poster. Import from [Hardcover](https://hardcover.app) or [Goodreads](https://goodreads.com), arrange your books into a grid, mosaic, or stack layout, then export as a print-quality image. It's a free, open-source Goodreads alternative for people who care how their reading life looks — a digital bookshelf you'll actually want to share. Every share is also a quiet reminder that 773 million adults can't read at all.
+Bookshelf turns your reading library into a stunning, shareable poster. Import from [Hardcover](https://hardcover.app) or [Goodreads](https://goodreads.com), arrange your books across 5 visualization modes, then export as a print-quality image. Free, open-source, no account required. Every share is also a quiet reminder that 773 million adults can't read at all.
 
 ## Screenshots
 
-| Grid | Stack | Mosaic |
-|------|-------|--------|
-| ![Grid](public/preview-grid.png) | ![Stack](public/preview-stack.png) | ![Mosaic](public/preview-mosaic.png) |
+| Cover Grid | Wall Shelf |
+|------------|------------|
+| ![Grid](public/preview-grid.png) | ![Mosaic](public/preview-mosaic.png) |
+
+| Stack Chart | Mosaic |
+|-------------|--------|
+| ![Stack](public/preview-stack.png) | ![Mosaic](public/preview-mosaic.png) |
 
 ## Features
 
+- **5 visualization styles** — Cover Grid, Wall Shelf, Stack Chart, Mosaic diamonds, Spiral Drift
 - **Import** from Hardcover or Goodreads CSV — or add books manually
-- **Drag-and-drop curation** — reorder and pick exactly what goes on your poster
-- **3 visualization styles** — grid, stack, and mosaic layouts
-- **Multiple export formats** — download as PNG for social, print, or wallpaper
-- **Auth** via Clerk — sign in with email or social providers
-- **Cloud sync** via Convex — your library is saved and synced across devices
+- **Drag-and-drop curation** — reorder books, hide titles, custom sort
+- **Per-row slider** — control density for grid, wall, and mosaic views
+- **Challenged / banned book indicators** — highlights books with ALA challenge reasons on hover
+- **Public domain badges** — auto-detects Project Gutenberg & Open Library availability
+- **Embed & API** — generate an `<iframe>` snippet or JSON API URL for your bookshelf
+- **Multiple export formats** — PNG for social, print, or wallpaper (square, story, wide, portrait)
+- **Auth** via Clerk — sign in with email or social providers (fully optional)
+- **Cloud sync** via Convex — library saved and synced across devices when signed in
 - **Open source** — MIT licensed, self-hostable
 
 ## Tech stack
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 16, React 19 |
+| Framework | Next.js 16 (Turbopack), React 19 |
 | Language | TypeScript (strict) |
 | Styling | Tailwind CSS v4 + inline styles |
-| Auth | Clerk |
+| Auth | Clerk (optional) |
 | Database / sync | Convex |
-| Book data | Hardcover API |
+| Book data | Hardcover API, Open Library, Gutendex |
 | Tests | Playwright |
 
 ## Getting started
@@ -54,8 +62,8 @@ Bookshelf turns your reading library into a stunning, shareable poster. Import f
 
 ```bash
 # 1. Clone
-git clone https://github.com/mfrashad/bookshelf.git
-cd bookshelf
+git clone https://github.com/mfrashad/buildforpublic.git
+cd buildforpublic
 
 # 2. Install dependencies
 npm install
@@ -95,16 +103,39 @@ Copy `.env.example` to `.env.local` and fill in each value:
 src/app/
 ├── page.tsx          # Landing page
 ├── library/          # Main book library + poster editor
+├── embed/            # Embeddable iframe view
 ├── import/           # Hardcover / Goodreads import flow
 ├── give/             # NGO donation page
 ├── impact/           # Literacy mission page
 ├── onboarding/       # New-user setup
-├── sign-in/          # Clerk sign-in
-├── sign-up/          # Clerk sign-up
-└── api/              # Route handlers
+├── api/              # Route handlers (open-access, cover proxy, v1/books)
+└── ...
 
-convex/               # Convex schema, mutations, queries, actions
+convex/               # Convex schema, mutations, queries
+src/components/viz/   # All 5 visualization components
+src/hooks/            # useLibrary, useOpenAccess
+src/lib/              # Types, embed encode/decode, spine utilities
 ```
+
+## API
+
+Bookshelf exposes a public JSON API for any library. Get the endpoint URL from the **`</> Share`** button in the app, or construct it manually:
+
+```
+GET /api/v1/books?d=<base64-encoded-library>
+```
+
+Returns:
+```json
+{
+  "count": 35,
+  "books": [
+    { "title": "1984", "author": "George Orwell", "year": 2024, "isbn": "...", "pageCount": 328, "rating": 5 }
+  ]
+}
+```
+
+CORS-enabled, no authentication required.
 
 ## Available scripts
 
@@ -119,17 +150,19 @@ convex/               # Convex schema, mutations, queries, actions
 
 ## Contributing
 
-Contributions are warmly welcomed — see [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+Contributions are warmly welcomed. Open an issue or PR — all skill levels welcome.
 
-If this project has been useful to you, consider **[starring it on GitHub](https://github.com/mfrashad/bookshelf)** — it helps others find it.
+If this project has been useful to you, consider **[starring it on GitHub](https://github.com/mfrashad/buildforpublic)** — it helps others find it.
 
 ## Mission
 
-Bookshelf was built on World Book Day as a free gift to readers everywhere. Every library shared is a quiet reminder that reading is a privilege — and a right. [Read more about our literacy mission →](https://bookshelf.aiforgood.my/impact)
+Bookshelf was built on World Book Day as a free gift to readers everywhere. Every library shared is a quiet reminder that reading is a privilege — and a right. [Read more about our literacy mission →](https://bookshelf.buildforpublic.com/impact)
+
+773 million adults worldwide cannot read or write. 1 in 4 children leave primary school unable to read.
 
 ## Credits
 
-Built by [Fathy Rashad](https://rashadcodes.com) for [aiforgood.my](https://aiforgood.my) — a Malaysian initiative using AI to create tools that matter.
+Built by [Fathy Rashad](https://rashadcodes.com) · Part of [Build for Public](https://buildforpublic.com) — a community shipping open-source tools for social good.
 
 ## License
 
