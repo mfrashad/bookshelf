@@ -6,7 +6,7 @@
 <p align="center"><em>Your reading life, beautifully visualized.</em></p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL%20v3-blue.svg" alt="AGPL v3 License" /></a>
   <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js 16" />
   <a href="https://aiforgood.my"><img src="https://img.shields.io/badge/made%20with-AI%20for%20Good-94e8ff" alt="Made with AI for Good" /></a>
 </p>
@@ -29,7 +29,7 @@ Bookshelf turns your reading library into a stunning, shareable poster. Import f
 - **Multiple export formats** — download as PNG for social, print, or wallpaper
 - **Auth** via Clerk — sign in with email or social providers
 - **Cloud sync** via Convex — your library is saved and synced across devices
-- **Open source** — MIT licensed, self-hostable
+- **Open source** — AGPL v3 licensed, self-hostable
 
 ## Tech stack
 
@@ -133,4 +133,4 @@ Built by [Fathy Rashad](https://rashadcodes.com) for [aiforgood.my](https://aifo
 
 ## License
 
-[MIT](LICENSE) © 2026 Fathy Rashad
+[AGPL v3](LICENSE) © 2026 Fathy Rashad
