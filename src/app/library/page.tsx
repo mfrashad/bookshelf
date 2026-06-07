@@ -931,6 +931,7 @@ function ShareEmbedModal({ shelves, defaultViz, onClose }: { shelves: import('@/
   }
 
   const codeStyle: React.CSSProperties = {
+    display: 'block',
     fontFamily: 'var(--font-geist, monospace)',
     fontSize: 11,
     background: '#f5f5f5',
@@ -942,6 +943,8 @@ function ShareEmbedModal({ shelves, defaultViz, onClose }: { shelves: import('@/
     color: '#333',
     lineHeight: 1.5,
     flex: 1,
+    maxHeight: 80,
+    overflowY: 'auto',
   };
 
   return (
@@ -984,7 +987,10 @@ function ShareEmbedModal({ shelves, defaultViz, onClose }: { shelves: import('@/
 
           {/* Embed code */}
           <div>
-            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Embed code</p>
+            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Embed code</p>
+            <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#666', marginBottom: 8 }}>
+              Paste this into any webpage to embed your bookshelf.
+            </p>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
               <code style={codeStyle}>{iframeCode}</code>
               <button
@@ -1000,7 +1006,7 @@ function ShareEmbedModal({ shelves, defaultViz, onClose }: { shelves: import('@/
           <div>
             <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>JSON API</p>
             <p style={{ fontFamily: 'var(--font-geist, sans-serif)', fontSize: 12, color: '#666', marginBottom: 8 }}>
-              Returns your library as JSON. Open to anyone — no authentication required.
+              Returns your library as JSON. Open to anyone — no auth required.
             </p>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
               <code style={codeStyle}>{apiUrl}</code>

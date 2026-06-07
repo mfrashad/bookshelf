@@ -5,7 +5,6 @@ export interface EmbedBook {
   t: string;       // title
   a?: string;      // author (first)
   y?: number;      // year
-  c?: string;      // coverProxiedUrl
   i?: string;      // isbn
   p?: number;      // pageCount
   r?: number;      // rating (1-5)
@@ -14,6 +13,20 @@ export interface EmbedBook {
 export interface EmbedPayload {
   books: EmbedBook[];
   viz?: VizMode;
+}
+
+function toBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary);
+}
+
+function fromBase64(b64: string): string {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
 }
 
 export function encodeShelves(shelves: Shelf[], viz?: VizMode): string {
@@ -25,7 +38,6 @@ export function encodeShelves(shelves: Shelf[], viz?: VizMode): string {
         if (b.authors?.[0]?.name) entry.a = b.authors[0].name;
         const year = parseInt(s.title, 10);
         if (!isNaN(year)) entry.y = year;
-        if (b.coverProxiedUrl) entry.c = b.coverProxiedUrl;
         if (b.isbn) entry.i = b.isbn;
         if (b.pageCount) entry.p = b.pageCount;
         if (b.rating) entry.r = b.rating;
@@ -34,12 +46,12 @@ export function encodeShelves(shelves: Shelf[], viz?: VizMode): string {
     );
   const payload: EmbedPayload = { books };
   if (viz) payload.viz = viz;
-  return btoa(JSON.stringify(payload));
+  return toBase64(JSON.stringify(payload));
 }
 
 export function decodePayload(data: string): EmbedPayload | null {
   try {
-    return JSON.parse(atob(data)) as EmbedPayload;
+    return JSON.parse(fromBase64(data)) as EmbedPayload;
   } catch {
     return null;
   }
@@ -50,11 +62,14 @@ export function payloadToShelves(payload: EmbedPayload): Shelf[] {
   payload.books.forEach((b, i) => {
     const year = String(b.y ?? 'Unknown');
     if (!byYear.has(year)) byYear.set(year, []);
+    const coverProxiedUrl = b.i
+      ? `https://covers.openlibrary.org/b/isbn/${b.i}-M.jpg`
+      : undefined;
     byYear.get(year)!.push({
       id: `embed-${i}`,
       title: b.t,
-      cover: b.c ?? '',
-      coverProxiedUrl: b.c,
+      cover: coverProxiedUrl ?? '',
+      coverProxiedUrl,
       pageCount: b.p ?? 0,
       slug: b.t.toLowerCase().replace(/\s+/g, '-'),
       authors: b.a ? [{ name: b.a }] : [],
